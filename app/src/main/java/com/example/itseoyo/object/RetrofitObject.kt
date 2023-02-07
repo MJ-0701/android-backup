@@ -3,13 +3,16 @@ package com.example.itseoyo.`object`
 import android.util.Log
 import com.example.itseoyo.NullOnEmptyConverterFactory
 import com.example.itseoyo.retrofitinterface.PhoneInfoService
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.io.IOException
 import java.lang.reflect.Type
 
 
@@ -44,12 +47,10 @@ object RetrofitObject {
 
         return Retrofit
             .Builder()
-//            .baseUrl("http://192.168.185.158:8080")
-            .baseUrl("http://192.168.41.158:8080") // 로컬 테스트 : 현재 내 pc의 ip4 주소
+            .baseUrl("http://13.209.222.253:8000") // 로컬 테스트 : 현재 내 pc의 ip4 주소
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(nullOnEmptyConverterFactory)
-//            .addConverterFactory(NullOnEmptyConverterFactory())
             .client(client)
             .build();
     }
@@ -69,9 +70,30 @@ object RetrofitObject {
         }
     }
 
+    fun okHttpClient(interceptor: AppInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(interceptor)
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }).build()
+    }
+
 
     fun getCustomerApi(): PhoneInfoService {
         Log.d("레트로핏", "진입")
         return getRetrofitInstance().create(PhoneInfoService::class.java)
     }
+
+    class AppInterceptor : Interceptor {
+        @Throws(IOException::class)
+        override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
+            val newRequest = request().newBuilder()
+                .addHeader("Authorization", "(header Value)")
+                .build()
+            proceed(newRequest)
+        }
+    }
+
+
+
 }

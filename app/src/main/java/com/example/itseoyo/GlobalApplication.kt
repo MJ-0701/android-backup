@@ -3,9 +3,23 @@ package com.example.itseoyo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import com.example.itseoyo.`object`.PreferenceUtil
 
 
 class GlobalApplication : Application() {
+
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        @Volatile
+        private var obj: GlobalApplication? = null
+
+        @SuppressLint("StaticFieldLeak")
+        private val currentActivity: Activity? = null
+
+        lateinit var prefs: PreferenceUtil
+    }
+
 
     private var PageIndex: String = ""
     fun getPageIndex(): String? {
@@ -23,6 +37,8 @@ class GlobalApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        prefs = PreferenceUtil(applicationContext)
+
         obj = this
 
     }
@@ -34,15 +50,6 @@ class GlobalApplication : Application() {
 
     fun getCurrentActivity(): Activity? {
         return currentActivity
-    }
-
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var obj: GlobalApplication? = null
-
-        @SuppressLint("StaticFieldLeak")
-        private val currentActivity: Activity? = null
     }
 
 

@@ -21,6 +21,9 @@ interface CustomerService {
     @GET("/api/v1/customer/get-info")
     suspend fun getCustomerInfoByPhone(@Query("phoneNumber") phoneNumber: String?): Response<CustomerDto>
 
+    @GET("/api/call/info")
+    suspend fun getCustomerInfo(@Query("phoneNumber") phoneNumber: String?): Response<CustomerDto>
+
 //    @Multipart
 //    @POST("/api/v1/customer/upload-customer-info")
 //    fun saveCustomerInfo(

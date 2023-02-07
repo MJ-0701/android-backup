@@ -22,5 +22,11 @@ interface PhoneInfoService {
     @GET("/api/v1/customer/get-info")
     suspend fun getCustomerInfoByPhone(@Query("phoneNumber") phoneNumber: String?): Response<PhoneInfoDto>
 
+    @GET("/api/getToken")
+    suspend fun getJwtToken(): Response<String>
+
+    @GET("/api/tokenRefresh")
+    suspend fun getRefreshToken(): Response<String>
+
 
 }

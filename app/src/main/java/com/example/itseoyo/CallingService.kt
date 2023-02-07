@@ -162,7 +162,8 @@ class CallingService : Service() {
 
             // 코루틴 적용
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getCustomerInfoByPhone(phoneNumber)
+//                val response = service.getCustomerInfoByPhone(phoneNumber)
+                val response = service.getCustomerInfoByPhone("01012341234")
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         createView(true)
