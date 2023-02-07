@@ -44,7 +44,8 @@ object RetrofitObject {
 
         return Retrofit
             .Builder()
-            .baseUrl("http://192.168.185.158:8080")
+//            .baseUrl("http://192.168.185.158:8080")
+            .baseUrl("http://192.168.41.158:8080") // 로컬 테스트 : 현재 내 pc의 ip4 주소
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(nullOnEmptyConverterFactory)

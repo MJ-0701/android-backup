@@ -6,7 +6,6 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.provider.Settings
@@ -20,15 +19,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.itseoyo.`object`.RetrofitObject
 import com.example.itseoyo.retrofitinterface.CustomerService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.create
-import okhttp3.RequestBody.Companion.toRequestBody
 
 
 class MainActivity : AppCompatActivity() {
@@ -49,36 +39,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkPermission()
-        setContentView(R.layout.activity_main)
-//        drawActivity()
-
-
-        button = findViewById(R.id.button2)
-        val phoneNumber = intent.getStringExtra("phoneNumber")
-
-
-        button!!.setOnClickListener {
-
-            Log.d("폰넘버", phoneNumber.toString())
-
-
-            val itemBody = "물건 번호"
-            val nameBody = "채명정"
-            val phoneBody = phoneNumber!!
-            val contentsBody = "테스트"
-
-            val requestMap: HashMap<String, String> = HashMap()
-            requestMap["itemNumber"] = itemBody
-            requestMap["userName"] = nameBody
-            requestMap["phoneNumber"] = phoneBody
-            requestMap["contents"] = contentsBody
-
-            Log.d("dto : ", requestMap.toString())
-
-            CoroutineScope(Dispatchers.IO).launch {
-                service.saveCustomerInfo(requestMap)
-            }
-        }
+        drawActivity()
     }
 
 
@@ -134,9 +95,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-//        webView!!.webViewClient = WebViewClientClass()
-//        webView!!.settings.loadWithOverviewMode = true
-//        webView!!.settings.useWideViewPort = true
+        webView!!.webViewClient = WebViewClientClass()
+        webView!!.settings.loadWithOverviewMode = true
+        webView!!.settings.useWideViewPort = false
 
 
     }
@@ -145,16 +106,16 @@ class MainActivity : AppCompatActivity() {
 
         @Deprecated("Deprecated in Java")
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            if (Uri.parse(url).host.toString() == "13.209.222.253") {
-                // This is my web site, so do not override; let my WebView load the page
-                Log.d("허용", "안함")
-                Log.d("유알엘", Uri.parse(url).host.toString())
+            Log.d("웹뷰 클라이언트", "웹뷰")
+            if (Uri.parse(url).host == "13.209.222.253") {
+                // This is my web site, so do not override; let my WebView load the page -> 우리 웹 도메인 일 경우 웹뷰로 호출 -> return false 로 핸드폰 자체 클라이언트로 열지 않는다.
+                Log.d("호스팅", "동작")
                 return false
             }
-            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
+            Log.d("호스팅", "동작 안함1")
+            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs -> 나머지의 경우 핸드폰 자체 클라이언트로 열람.
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                Log.d("허용", "함")
-                Log.d("유알엘", Uri.parse(url).host.toString())
+                Log.d("호스팅", "동작 안함2")
                 startActivity(this)
             }
             return true
@@ -164,21 +125,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkPermission() {
 
-        if (ContextCompat.checkSelfPermission(
-                this@MainActivity,
-                Manifest.permission.READ_CALL_LOG
-            ) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
-                this@MainActivity,
-                Manifest.permission.READ_PHONE_STATE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this@MainActivity, arrayOf(
-                    Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE
-                ), 1
-            )
-        }
         if (!Settings.canDrawOverlays(this)) { // 오버레이 권한 체크
             showDialog()
             Log.d("DrawOverlays1", "UnChecked")

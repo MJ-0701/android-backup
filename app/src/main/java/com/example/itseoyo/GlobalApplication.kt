@@ -24,6 +24,7 @@ class GlobalApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         obj = this
+
     }
 
     fun getGlobalApplicationContext(): GlobalApplication? {

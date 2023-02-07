@@ -30,7 +30,7 @@
         android:theme="@style/Theme.Itseoyo"
         tools:targetApi="31">
 
-
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
 <!--        <activity-->
 <!--            android:name=".MainActivity"-->
@@ -56,9 +56,9 @@
 
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:configChanges="keyboard|orientation|keyboardHidden|screenSize"
             android:exported="true">
+
+
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.VIEW" />-->
 
