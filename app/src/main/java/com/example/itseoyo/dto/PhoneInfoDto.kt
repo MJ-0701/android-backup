@@ -5,29 +5,23 @@ import java.time.LocalDateTime
 
 data class PhoneInfoDto(
 
-    @SerializedName("CODE")
-    val code : String,
+    @SerializedName("code")
+    val code : String?,
 
-    @SerializedName("TYPE")
-    val type : String,
+    @SerializedName("data")
+    val data : UserInfo
+)
 
-    @SerializedName("NAME")
-    val name : String,
+data class UserInfo(
 
-    @SerializedName("PHONE")
-    val phone : String,
+   @SerializedName("TYPE")
+   val type : String?,
 
-    @SerializedName("itemNumber")
-    val itemNumber: String,
+   @SerializedName("NAME")
+   val name : String?,
 
-    @SerializedName("userName")
-    val userName: String,
-
-    @SerializedName("phoneNumber")
-    val phoneNumber: String,
-
-    @SerializedName("contents")
-    val contents: String
+   @SerializedName("PHONE")
+   val phone : String?
 )
 
 

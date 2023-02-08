@@ -1,10 +1,8 @@
 package com.example.itseoyo
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Message
@@ -15,10 +13,7 @@ import android.webkit.*
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.itseoyo.`object`.RetrofitObject
-import com.example.itseoyo.retrofitinterface.CustomerService
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,9 +27,6 @@ class MainActivity : AppCompatActivity() {
     var uri: Uri? = null
     var imageView: ImageView? = null
 
-    var button: Button? = null
-    val service: CustomerService =
-        RetrofitObject.getRetrofitInstance().create(CustomerService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

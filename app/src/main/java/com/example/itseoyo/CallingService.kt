@@ -163,39 +163,46 @@ class CallingService : Service() {
             // 코루틴 적용
             CoroutineScope(Dispatchers.IO).launch {
 //                val response = service.getCustomerInfoByPhone(phoneNumber)
-                val response = service.getCustomerInfoByPhone("01012341234")
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        createView(true)
-                        Log.d("통신", "성공")
-                        Log.d("데이터", response.body()!!.toString())
-                        Log.d("플래그 값 :", popupFlag.toString())
-                        phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
-                        nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+//                val response = service.getCustomerInfoByPhone("01012341234")
+                val token = service.getJwtToken()
+//                GlobalApplication.prefs.setString("Authorization", token.body()?.token.toString())
+                val bearerToken = "Bearer " + token.body()?.token.toString()
+                Log.d("토큰", token.body()?.token.toString())
+                if(token.isSuccessful) {
+                    val response = service.getCustomerInfo("01012341234", bearerToken)
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            createView(true)
+                            Log.d("통신", "성공")
+                            Log.d("데이터", response.body()!!.toString())
+                            Log.d("플래그 값 :", popupFlag.toString())
+                            phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                            nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
 
-                        phoneTxt?.text = response.body()!!.phoneNumber
-                        nameTxt?.text = response.body()!!.userName
+//                            phoneTxt?.text = response.body()?.phoneNumber
+//                            nameTxt?.text = response.body()?.userName
 
-                    } else if (response.isSuccessful.not()) {
-                        createView(popupFlag)
-                        Log.d("플래그 값 :", popupFlag.toString())
-                        phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                        } else if (response.isSuccessful.not()) {
+                            createView(popupFlag)
+                            Log.d("플래그 값 :", popupFlag.toString())
+                            phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
 //                        nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
-                        itemText = rootView?.findViewById<View>(R.id.itemTxt) as TextView
-                        contentTxt = rootView?.findViewById<View>(R.id.contentTxt) as TextView
-                        if (response.code().toString() == "999") {
-                            phoneTxt?.text = phoneNumber
-                            Log.d("상태 코드1", response.code().toString())
-                            Log.d("응답", response.errorBody()?.string().toString())
-                            changeActivity(phoneNumber)
+                            itemText = rootView?.findViewById<View>(R.id.itemTxt) as TextView
+                            contentTxt = rootView?.findViewById<View>(R.id.contentTxt) as TextView
+                            if (response.code().toString() == "999") {
+                                phoneTxt?.text = phoneNumber
+                                Log.d("상태 코드1", response.code().toString())
+                                Log.d("응답", response.errorBody()?.string().toString())
+                                changeActivity(phoneNumber)
+                            } else {
+                                phoneTxt?.text = phoneNumber
+                                Log.d("상태 코드2", response.code().toString())
+                                Log.d("응답", response.errorBody()?.string().toString())
+                                changeActivity(phoneNumber)
+                            }
                         } else {
-                            phoneTxt?.text = phoneNumber
-                            Log.d("상태 코드2", response.code().toString())
-                            Log.d("응답", response.errorBody()?.string().toString())
-                            changeActivity(phoneNumber)
+                            Log.d("3번째", "실패")
                         }
-                    } else {
-                        Log.d("3번째", "실패")
                     }
                 }
             }

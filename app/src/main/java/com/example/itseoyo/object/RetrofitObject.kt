@@ -1,6 +1,7 @@
 package com.example.itseoyo.`object`
 
 import android.util.Log
+import com.example.itseoyo.GlobalApplication
 import com.example.itseoyo.NullOnEmptyConverterFactory
 import com.example.itseoyo.retrofitinterface.PhoneInfoService
 import okhttp3.Interceptor
@@ -87,8 +88,10 @@ object RetrofitObject {
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
+            val accessToken = GlobalApplication.prefs.getString("Authorization", "")
+
             val newRequest = request().newBuilder()
-                .addHeader("Authorization", "(header Value)")
+                .addHeader("Authorization", "Bearer $accessToken")
                 .build()
             proceed(newRequest)
         }

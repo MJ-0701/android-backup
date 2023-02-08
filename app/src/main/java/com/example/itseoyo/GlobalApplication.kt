@@ -3,10 +3,18 @@ package com.example.itseoyo
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.util.Log
 import com.example.itseoyo.`object`.PreferenceUtil
+import com.example.itseoyo.`object`.RetrofitObject
+import com.example.itseoyo.retrofitinterface.PhoneInfoService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class GlobalApplication : Application() {
+
+
 
 
     companion object {
@@ -38,9 +46,7 @@ class GlobalApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         prefs = PreferenceUtil(applicationContext)
-
         obj = this
-
     }
 
     fun getGlobalApplicationContext(): GlobalApplication? {
