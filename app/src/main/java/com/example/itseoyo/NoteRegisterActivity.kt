@@ -13,22 +13,20 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 
+class NoteRegisterActivity : AppCompatActivity() {
 
-class CustomerRegisterActivity : AppCompatActivity() {
-
-    private val url = "http://13.209.222.253/guest/write"
+    private val url = "http://13.209.222.253/room/detail_view"
 
     private var webView: WebView? = null
     private var mWebViewInterface: WebViewInterFace? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("고객등록", "액티비티")
+        Log.d("물건등록", "액티비티")
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_customer_register)
-        setContentView(R.layout.activity_webview)
+//        setContentView(R.layout.activity_item_register)
         drawActivity()
-
     }
+
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun drawActivity() {
@@ -43,7 +41,7 @@ class CustomerRegisterActivity : AppCompatActivity() {
         webView!!.settings.allowFileAccess = false
         webView!!.settings.allowFileAccessFromFileURLs = false
         webView!!.settings.allowUniversalAccessFromFileURLs = false
-        mWebViewInterface = WebViewInterFace(this@CustomerRegisterActivity)
+        mWebViewInterface = WebViewInterFace(this@NoteRegisterActivity)
         webView!!.addJavascriptInterface(mWebViewInterface!!, "Android")
 
         val intent = intent
@@ -65,10 +63,10 @@ class CustomerRegisterActivity : AppCompatActivity() {
                 isUserGesture: Boolean,
                 resultMsg: Message
             ): Boolean {
-                val newWebView = WebView(this@CustomerRegisterActivity)
+                val newWebView = WebView(this@NoteRegisterActivity)
                 val webSettings = newWebView.settings
                 webSettings.javaScriptEnabled = true
-                val dialog = Dialog(this@CustomerRegisterActivity)
+                val dialog = Dialog(this@NoteRegisterActivity)
                 dialog.setContentView(newWebView)
                 dialog.show()
                 newWebView.webChromeClient = object : WebChromeClient() {

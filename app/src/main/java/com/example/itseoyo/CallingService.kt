@@ -7,11 +7,15 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.os.Message
 import android.util.Log
 import android.view.*
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.databinding.DataBindingUtil.setContentView
 import com.example.itseoyo.`object`.RetrofitObject
 import com.example.itseoyo.retrofitinterface.PhoneInfoService
 import kotlinx.coroutines.CoroutineScope
@@ -169,39 +173,34 @@ class CallingService : Service() {
                 val bearerToken = "Bearer " + token.body()?.token.toString()
                 Log.d("토큰", token.body()?.token.toString())
                 if(token.isSuccessful) {
+//                    val response = service.getCustomerInfo(phoneNumber, bearerToken)
                     val response = service.getCustomerInfo("01012341234", bearerToken)
                     withContext(Dispatchers.Main) {
-                        if (response.isSuccessful) {
+                        if (response.isSuccessful && response.body()?.code == "SUCCESS") {
                             createView(true)
                             Log.d("통신", "성공")
                             Log.d("데이터", response.body()!!.toString())
                             Log.d("플래그 값 :", popupFlag.toString())
                             phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
                             nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+                            changeActivity(phoneNumber)
 
-//                            phoneTxt?.text = response.body()?.phoneNumber
-//                            nameTxt?.text = response.body()?.userName
-
-                        } else if (response.isSuccessful.not()) {
+                        } else if (response.isSuccessful && response.body()?.code == "NO_DATA" ) {
                             createView(popupFlag)
                             Log.d("플래그 값 :", popupFlag.toString())
                             phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
-//                        nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
                             itemText = rootView?.findViewById<View>(R.id.itemTxt) as TextView
                             contentTxt = rootView?.findViewById<View>(R.id.contentTxt) as TextView
-                            if (response.code().toString() == "999") {
-                                phoneTxt?.text = phoneNumber
-                                Log.d("상태 코드1", response.code().toString())
-                                Log.d("응답", response.errorBody()?.string().toString())
-                                changeActivity(phoneNumber)
-                            } else {
-                                phoneTxt?.text = phoneNumber
-                                Log.d("상태 코드2", response.code().toString())
-                                Log.d("응답", response.errorBody()?.string().toString())
-                                changeActivity(phoneNumber)
-                            }
+
+                            phoneTxt?.text = phoneNumber
+                            Log.d("상태 코드2", response.code().toString())
+                            Log.d("응답", response.errorBody()?.string().toString())
+                            registerActivity(phoneNumber)
                         } else {
                             Log.d("3번째", "실패")
+                            Log.d("플래그 값 :", popupFlag.toString())
+                            Log.d("데이터", response.body()!!.toString())
+                            Log.d("트루", response.isSuccessful.toString())
                         }
                     }
                 }
@@ -215,9 +214,11 @@ class CallingService : Service() {
         return START_STICKY
     }
 
-    private fun changeActivity(phoneNumber: String?) {
+    private fun registerActivity(phoneNumber: String?) {
         val customerRegister: View = rootView!!.findViewById(R.id.customer_register_button)
         val itemRegister: View = rootView!!.findViewById(R.id.item_register_button)
+
+
 
         customerRegister.setOnClickListener {
             Log.d("진입", "확인")
@@ -238,6 +239,33 @@ class CallingService : Service() {
             startActivity(intent)
             onDestroy()
         }
+    }
+
+    private fun changeActivity(phoneNumber: String?) {
+
+        val detailView : View = rootView!!.findViewById(R.id.detail_view_button)
+        val noteRegister : View = rootView!!.findViewById(R.id.note_register_button)
+
+        detailView.setOnClickListener {
+            Log.d("진입", "확인")
+            Log.d("신규고객등록 버튼", "확인")
+            val intent = Intent(this, DetailViewActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("phoneNumber", phoneNumber)
+            startActivity(intent)
+            onDestroy()
+        }
+
+        noteRegister.setOnClickListener {
+            Log.d("진입", "확인")
+            Log.d("신규고객등록 버튼", "확인")
+            val intent = Intent(this, NoteRegisterActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("phoneNumber", phoneNumber)
+            startActivity(intent)
+            onDestroy()
+        }
+
     }
 
 

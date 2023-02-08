@@ -76,6 +76,16 @@
             >
         </activity>
 
+        <activity
+            android:name=".DetailViewActivity"
+            >
+        </activity>
+
+        <activity
+            android:name=".NoteRegisterActivity"
+            >
+        </activity>
+
 
         <service android:name=".CallingService"
                  android:permission="android.permission.SYSTEM_ALERT_WINDOW"
