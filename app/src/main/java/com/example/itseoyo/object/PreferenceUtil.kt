@@ -1,5 +1,6 @@
 package com.example.itseoyo.`object`
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 
@@ -10,6 +11,7 @@ class PreferenceUtil(context : Context) {
     * MODE_WORLD_READABLE : 외부 App에서 사용 가능, 하지만 읽기만 가능하다
     * MODE_WORLD_WRITEABLE : 외부 App에서 사용 가능, 읽기/쓰기 모두 가능하다
     * */
+
     private val prefs: SharedPreferences =
         context.getSharedPreferences("prefs_name", Context.MODE_PRIVATE)
 

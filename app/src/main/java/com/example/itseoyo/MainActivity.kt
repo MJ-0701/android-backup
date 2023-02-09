@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         webView!!.settings.allowFileAccess = false
         webView!!.settings.allowFileAccessFromFileURLs = false
         webView!!.settings.allowUniversalAccessFromFileURLs = false
+        webView!!.settings.allowContentAccess = false
         mWebViewInterface = WebViewInterFace(this@MainActivity)
         webView!!.addJavascriptInterface(mWebViewInterface!!, "Android")
 
@@ -119,9 +120,6 @@ class MainActivity : AppCompatActivity() {
 
         if (!Settings.canDrawOverlays(this)) { // 오버레이 권한 체크
             showDialog()
-            Log.d("DrawOverlays1", "UnChecked")
-        }else {
-            Log.d("DrawOverlays2", "Checked")
         }
     }
 

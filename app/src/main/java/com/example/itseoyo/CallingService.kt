@@ -43,11 +43,42 @@ class CallingService : Service() {
     private var isMove = false
 
 
-    var phoneTxt: TextView? = null
-//    var nameTxt: TextView? = null
-    var itemText: TextView? = null
-    var contentTxt: TextView? = null
+    // 최상단 표기 데이터
     var nameTxt : TextView? = null
+
+    // 전화번호
+    var phoneTxt: TextView? = null
+
+    // 유형
+    var category: TextView? = null
+
+    // 유형 옆 소유주 이름
+    var rightOwner: TextView? = null
+
+    // 상태
+    var statusType: TextView? = null
+
+    // 가격
+    var price: TextView? = null
+
+    // 주소
+    var address: TextView? = null
+
+    // 물건 번호
+    var itemNumber: TextView? = null
+
+    // 소유주(이름)
+    var owner: TextView? = null
+
+    // 노트
+    var note: TextView? = null
+
+    // 특징
+    var specialFeature: TextView? = null
+
+    var itemText: TextView? = null
+
+    var contentTxt: TextView? = null
 
     private var popupFlag : Boolean = false
 
@@ -156,9 +187,6 @@ class CallingService : Service() {
         if (intent == null) {
             Log.d("인텐트", "없음")
             return START_STICKY // 서비스가 종료 되었을 때도 다시 자동으로 실행
-        } else {
-//            createView()
-            Log.d("인텐트", "있음")
         }
 
         if (phoneNumber != null) {
@@ -166,23 +194,68 @@ class CallingService : Service() {
 
             // 코루틴 적용
             CoroutineScope(Dispatchers.IO).launch {
-//                val response = service.getCustomerInfoByPhone(phoneNumber)
-//                val response = service.getCustomerInfoByPhone("01012341234")
                 val token = service.getJwtToken()
-//                GlobalApplication.prefs.setString("Authorization", token.body()?.token.toString())
                 val bearerToken = "Bearer " + token.body()?.token.toString()
+                GlobalApplication.prefs.setString("Authorization", bearerToken)
                 Log.d("토큰", token.body()?.token.toString())
                 if(token.isSuccessful) {
 //                    val response = service.getCustomerInfo(phoneNumber, bearerToken)
-                    val response = service.getCustomerInfo("01012341234", bearerToken)
+                    val phone = phoneNumber.replace("-", "")
+//                    val response = service.getCustomerInfo(phone)
+                    val response = service.getCustomerInfo("01012341234")
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && response.body()?.code == "SUCCESS") {
                             createView(true)
                             Log.d("통신", "성공")
                             Log.d("데이터", response.body()!!.toString())
                             Log.d("플래그 값 :", popupFlag.toString())
-                            phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+
+                            // 최상단 데이터
                             nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+                            nameTxt?.text = response.body()?.data?.name
+
+                            // 핸드폰 번호
+                            phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                            phoneTxt?.text = phoneNumber
+
+                            // 유형
+                            category = rootView?.findViewById<View>(R.id.type) as TextView
+                            category?.text = "단독1"
+                            Log.d("유형", category?.text.toString())
+
+                            // 소유주(유형 옆)
+                            rightOwner = rootView?.findViewById<View>(R.id.owner_id) as TextView
+                            rightOwner?.text = "채명정"
+                            Log.d("소유주", rightOwner?.text.toString())
+
+                            // 상태
+                            statusType = rootView?.findViewById<View>(R.id.status_type) as TextView
+                            statusType?.text = "보류1"
+
+                            // 가격
+                            price = rootView?.findViewById<View>(R.id.price) as TextView
+                            price?.text = "가격1"
+
+                            // 주소
+                            address = rootView?.findViewById<View>(R.id.address) as TextView
+                            address?.text = "주소"
+
+                            // 물건 번호
+                            itemNumber = rootView?.findViewById<View>(R.id.item_number) as TextView
+                            itemNumber?.text = "물건 번호"
+
+                            // 소유주 이름
+                            owner = rootView?.findViewById<View>(R.id.owner) as TextView
+                            owner?.text = "김희진1"
+
+                            // 노트
+                            note = rootView?.findViewById<View>(R.id.note_detail) as TextView
+                            note?.text = "세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능 세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능 세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능"
+
+                            // 특징
+                            specialFeature = rootView?.findViewById<View>(R.id.special_feature) as TextView
+                            specialFeature?.text = "오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능"
+
                             changeActivity(phoneNumber)
 
                         } else if (response.isSuccessful && response.body()?.code == "NO_DATA" ) {
@@ -205,8 +278,6 @@ class CallingService : Service() {
                     }
                 }
             }
-        } else {
-            Log.d("폰넘버", "안찍힘")
         }
 
         startForeground(NOTIFICATION_ID, createNotification(this))
@@ -221,8 +292,6 @@ class CallingService : Service() {
 
 
         customerRegister.setOnClickListener {
-            Log.d("진입", "확인")
-            Log.d("신규고객등록 버튼", "확인")
             val intent = Intent(this, CustomerRegisterActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("phoneNumber", phoneNumber)
@@ -231,8 +300,6 @@ class CallingService : Service() {
         }
 
         itemRegister.setOnClickListener {
-            Log.d("진입", "확인")
-            Log.d("신규물건등록 버튼", "확인")
             val intent = Intent(this@CallingService, ItemRegisterActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("phoneNumber", phoneNumber)
@@ -247,8 +314,6 @@ class CallingService : Service() {
         val noteRegister : View = rootView!!.findViewById(R.id.note_register_button)
 
         detailView.setOnClickListener {
-            Log.d("진입", "확인")
-            Log.d("신규고객등록 버튼", "확인")
             val intent = Intent(this, DetailViewActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("phoneNumber", phoneNumber)
@@ -257,8 +322,6 @@ class CallingService : Service() {
         }
 
         noteRegister.setOnClickListener {
-            Log.d("진입", "확인")
-            Log.d("신규고객등록 버튼", "확인")
             val intent = Intent(this, NoteRegisterActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("phoneNumber", phoneNumber)
@@ -287,20 +350,20 @@ class CallingService : Service() {
             )
         }
 
-        val builder = NotificationCompat.Builder(context, "있어요")
+        val builder = NotificationCompat.Builder(context, "부동산 기억")
         builder.setWhen(System.currentTimeMillis())
         builder.setSmallIcon(R.mipmap.ic_launcher)
-        builder.setContentTitle("있어요")
+        builder.setContentTitle("부동산 기억")
         builder.setContentText("표기 내용")
         builder.setOngoing(true)
         builder.priority = NotificationCompat.PRIORITY_MIN
         builder.setCategory(NotificationCompat.CATEGORY_SERVICE)
         builder.setContentIntent(notifyPendingIntent)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name: CharSequence = "있어요"
-            val description = "있어요"
+            val name: CharSequence = "부동산 기억"
+            val description = "부동산 기억"
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel("있어요", name, importance)
+            val channel = NotificationChannel("부동산 기억", name, importance)
             channel.description = description
             val notificationManager = getSystemService(
                 NotificationManager::class.java
@@ -355,7 +418,6 @@ class CallingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("디스트로이", "동작")
         if (mWindowManager != null) {
             if (rootView != null) {
                 mWindowManager!!.removeView(rootView); // View 초기화

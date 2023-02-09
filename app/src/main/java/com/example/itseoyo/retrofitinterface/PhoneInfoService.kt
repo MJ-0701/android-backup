@@ -26,12 +26,18 @@ interface PhoneInfoService {
     @GET("/api/v1/customer/get-info")
     suspend fun getCustomerInfoByPhone(@Query("phoneNumber") phoneNumber: String?): Response<PhoneInfoDto>
 
+//    @FormUrlEncoded
+//    @POST("/api/call/info")
+//    suspend fun getCustomerInfo(
+//        @Field("phone") phone: String?,
+//        @Header("Authorization") accessToken : String?
+//        ): Response<PhoneInfoDto>
+
     @FormUrlEncoded
     @POST("/api/call/info")
     suspend fun getCustomerInfo(
         @Field("phone") phone: String?,
-        @Header("Authorization") accessToken : String?
-        ): Response<PhoneInfoDto>
+    ): Response<PhoneInfoDto>
 
     @GET("/api/getToken")
     suspend fun getJwtToken( ): Response<JwtTokenDto>

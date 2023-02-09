@@ -40,19 +40,30 @@ object RetrofitObject {
 //
 //    fun getApiInterface(): PhoneInfoService = apiInterface
 
-    fun getRetrofitInstance(): Retrofit {
-        val clientBuilder = OkHttpClient.Builder()
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val client = clientBuilder.addInterceptor(loggingInterceptor).build()
+//    fun getRetrofitInstance(): Retrofit {
+//        val clientBuilder = OkHttpClient.Builder()
+//        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+//        val client = clientBuilder.addInterceptor(loggingInterceptor).build()
+//
+//        return Retrofit
+//            .Builder()
+//            .baseUrl("http://13.209.222.253:8000") // 로컬 테스트 : 현재 내 pc의 ip4 주소
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .addConverterFactory(ScalarsConverterFactory.create())
+//            .addConverterFactory(nullOnEmptyConverterFactory)
+//            .client(client)
+//            .build();
+//    }
 
+    fun getRetrofitInstance(): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl("http://13.209.222.253:8000") // 로컬 테스트 : 현재 내 pc의 ip4 주소
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(nullOnEmptyConverterFactory)
-            .client(client)
+            .client(okHttpClient(AppInterceptor()))
             .build();
     }
 
@@ -71,7 +82,7 @@ object RetrofitObject {
         }
     }
 
-    fun okHttpClient(interceptor: AppInterceptor): OkHttpClient {
+    private fun okHttpClient(interceptor: AppInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(interceptor)
             .addInterceptor(HttpLoggingInterceptor().apply {
@@ -91,7 +102,7 @@ object RetrofitObject {
             val accessToken = GlobalApplication.prefs.getString("Authorization", "")
 
             val newRequest = request().newBuilder()
-                .addHeader("Authorization", "Bearer $accessToken")
+                .addHeader("Authorization", accessToken)
                 .build()
             proceed(newRequest)
         }
