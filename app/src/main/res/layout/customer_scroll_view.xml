@@ -28,7 +28,7 @@
                 android:paddingLeft="20dp"
                 android:paddingTop="22dp"
                 android:paddingBottom="6dp"
-                android:text="롯데캐슬 101호 집주인"
+                android:text="롯데캐슬 101호 집주인(고객)"
                 android:textColor="#4676FE"
                 android:textSize="20dp" />
 

@@ -59,7 +59,7 @@ object RetrofitObject {
     fun getRetrofitInstance(): Retrofit {
         return Retrofit
             .Builder()
-            .baseUrl("http://13.209.222.253:8000") // 로컬 테스트 : 현재 내 pc의 ip4 주소
+            .baseUrl("http://13.209.222.253:8000")
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(nullOnEmptyConverterFactory)
@@ -91,10 +91,9 @@ object RetrofitObject {
     }
 
 
-    fun getCustomerApi(): PhoneInfoService {
-        Log.d("레트로핏", "진입")
-        return getRetrofitInstance().create(PhoneInfoService::class.java)
-    }
+//    fun getCustomerApi(): PhoneInfoService { // 코루틴 적용시 필요 없음. -> retrofit enqueue로 호출시 필요.
+//        return getRetrofitInstance().create(PhoneInfoService::class.java)
+//    }
 
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)

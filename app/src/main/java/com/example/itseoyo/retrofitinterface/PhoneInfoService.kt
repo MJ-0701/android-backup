@@ -1,7 +1,9 @@
 package com.example.itseoyo.retrofitinterface
 
+import com.example.itseoyo.dto.CodeDataDto
 import com.example.itseoyo.dto.JwtTokenDto
 import com.example.itseoyo.dto.PhoneInfoDto
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
@@ -41,6 +43,12 @@ interface PhoneInfoService {
 
     @GET("/api/getToken")
     suspend fun getJwtToken( ): Response<JwtTokenDto>
+
+//    @GET("/api/common/getCode")
+//    suspend fun getCodeData( ): Response<JsonObject>
+
+    @GET("/api/common/getCode")
+    suspend fun getCodeData( ): Response<CodeDataDto>
 
     @GET("/api/tokenRefresh")
     suspend fun getRefreshToken(): Response<String>

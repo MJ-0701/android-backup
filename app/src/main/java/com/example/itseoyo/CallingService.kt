@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
@@ -16,12 +17,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil.setContentView
+import com.example.itseoyo.dto.ErrorResponse
 import com.example.itseoyo.`object`.RetrofitObject
 import com.example.itseoyo.retrofitinterface.PhoneInfoService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import org.json.JSONObject
 import retrofit2.*
 
 
@@ -90,11 +90,18 @@ class CallingService : Service() {
     }
 
     @SuppressLint("InflateParams")
-    private fun createView(popupFlag: Boolean) {
+    private fun createView(popupFlag: Boolean, customerCategory : String?) {
         val mInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
         mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         if(popupFlag) {
-            rootView = mInflater.inflate(R.layout.scroll_view, null)
+            Log.d("뷰생성", customerCategory.toString())
+
+            if(customerCategory == "SALE") {
+                rootView = mInflater.inflate(R.layout.scroll_view, null)
+            }else if(customerCategory == "CUSTOMER") {
+                rootView = mInflater.inflate(R.layout.customer_scroll_view, null)
+            }
+
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 params = WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
@@ -180,6 +187,7 @@ class CallingService : Service() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("MyService", "서비스 동작")
         val phoneNumber = intent?.getStringExtra("phone_number")
@@ -199,79 +207,266 @@ class CallingService : Service() {
                 GlobalApplication.prefs.setString("Authorization", bearerToken)
                 Log.d("토큰", token.body()?.token.toString())
                 if(token.isSuccessful) {
-//                    val response = service.getCustomerInfo(phoneNumber, bearerToken)
+
                     val phone = phoneNumber.replace("-", "")
 //                    val response = service.getCustomerInfo(phone)
-                    val response = service.getCustomerInfo("01012341234")
+                    val response = service.getCustomerInfo("01062491684")
+                    val codeData = service.getCodeData()
+
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && response.body()?.code == "SUCCESS") {
-                            createView(true)
+                            val customerCategory = response.body()?.data?.type
+                            createView(true, customerCategory)
                             Log.d("통신", "성공")
                             Log.d("데이터", response.body()!!.toString())
                             Log.d("플래그 값 :", popupFlag.toString())
+//                            Log.d("코드 데이터 : ", codeData.body().toString())
+//                            Log.d("type2 : ", codeData.body()?.type1?.getAsJsonObject("01")?.getAsJsonObject("type2")?.get("0101").toString())
 
-                            // 최상단 데이터
-                            nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
-                            nameTxt?.text = response.body()?.data?.name
+                            val typeOne  = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.get("value").toString()
+                            val typeTwo = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.getAsJsonObject("type2")?.get(response.body()?.data?.type2).toString()
+                            val typeThree = codeData.body()?.type3?.get(response.body()?.data?.type3).toString()
+//                            Log.d("치환1", typeOne)
+//                            Log.d("치환2", typeTwo)
+//                            Log.d("치환3", typeThree)
 
-                            // 핸드폰 번호
-                            phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
-                            phoneTxt?.text = phoneNumber
+                            when (customerCategory) {
+                                "SALE" -> {
+                                    // 최상단 데이터
+                                    nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+                                    nameTxt?.text = "최상단 데이터(미정) -> SALE(물건)"
 
-                            // 유형
-                            category = rootView?.findViewById<View>(R.id.type) as TextView
-                            category?.text = "단독1"
-                            Log.d("유형", category?.text.toString())
+                                    // 핸드폰 번호
+                                    phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                                    phoneTxt?.text = phoneNumber
 
-                            // 소유주(유형 옆)
-                            rightOwner = rootView?.findViewById<View>(R.id.owner_id) as TextView
-                            rightOwner?.text = "채명정"
-                            Log.d("소유주", rightOwner?.text.toString())
+                                    // 유형
+                                    category = rootView?.findViewById<View>(R.id.type) as TextView
+                                    category?.text = codeData.body()?.payType?.get(response.body()?.data?.payType)?.asString
 
-                            // 상태
-                            statusType = rootView?.findViewById<View>(R.id.status_type) as TextView
-                            statusType?.text = "보류1"
+                                    // 소유주(유형 옆)
+                                    rightOwner = rootView?.findViewById<View>(R.id.owner_id) as TextView
+                                    rightOwner?.text = response.body()?.data?.name
 
-                            // 가격
-                            price = rootView?.findViewById<View>(R.id.price) as TextView
-                            price?.text = "가격1"
+                                    // 상태
+                                    statusType = rootView?.findViewById<View>(R.id.status_type) as TextView
+                                    val statusCode : String = response.body()?.data?.status.toString()
+                                    statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
 
-                            // 주소
-                            address = rootView?.findViewById<View>(R.id.address) as TextView
-                            address?.text = "주소"
+                                    when(statusCode) {
+                                        "1" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                        }
 
-                            // 물건 번호
-                            itemNumber = rootView?.findViewById<View>(R.id.item_number) as TextView
-                            itemNumber?.text = "물건 번호"
+                                        "2" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                        }
 
-                            // 소유주 이름
-                            owner = rootView?.findViewById<View>(R.id.owner) as TextView
-                            owner?.text = "김희진1"
+                                        "3" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                        }
 
-                            // 노트
-                            note = rootView?.findViewById<View>(R.id.note_detail) as TextView
-                            note?.text = "세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능 세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능 세입자 구할 때 되도록 여성 세입자 원함 월세 및 반전세 조절 가능"
+                                        "4" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                        }
 
-                            // 특징
-                            specialFeature = rootView?.findViewById<View>(R.id.special_feature) as TextView
-                            specialFeature?.text = "오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능"
+                                        "5" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                        }
 
-                            changeActivity(phoneNumber)
+                                        "6" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                        }
+                                    }
+
+                                    // 가격
+                                    price = rootView?.findViewById<View>(R.id.price) as TextView
+                                    price?.text = response.body()?.data?.price
+
+                                    // 주소
+                                    address = rootView?.findViewById<View>(R.id.address) as TextView
+                                    address?.text = response.body()?.data?.address
+
+                                    // 물건 번호
+                                    itemNumber = rootView?.findViewById<View>(R.id.item_number) as TextView
+                                    itemNumber?.text = response.body()?.data?.saleUuid
+
+                                    // 소유주 이름
+                                    owner = rootView?.findViewById<View>(R.id.owner) as TextView
+                                    owner?.text = response.body()?.data?.name
+
+                                    // 노트
+                                    note = rootView?.findViewById<View>(R.id.note_detail) as TextView
+                                    note?.text = response.body()?.data?.comment
+
+                                    // 특징
+                                    specialFeature = rootView?.findViewById<View>(R.id.special_feature) as TextView
+                                    specialFeature?.text = "오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능"
+
+                                    changeActivity(phoneNumber)
+                                }
+                                "CUSTOMER" -> {
+                                    // 최상단 데이터
+                                    nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+                                    nameTxt?.text = "최상단 데이터(미정) -> CUSTOMER(손님)"
+
+                                    // 핸드폰 번호
+                                    phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                                    phoneTxt?.text = phoneNumber
+
+                                    // 유형
+                                    category = rootView?.findViewById<View>(R.id.type) as TextView
+                                    category?.text = codeData.body()?.payType?.get(response.body()?.data?.payType)?.asString
+
+                                    // 소유주(유형 옆)
+                                    rightOwner = rootView?.findViewById<View>(R.id.owner_id) as TextView
+                                    rightOwner?.text = response.body()?.data?.name
+
+                                    // 상태
+                                    statusType = rootView?.findViewById<View>(R.id.status_type) as TextView
+                                    val statusCode : String = response.body()?.data?.status.toString()
+                                    statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
+
+                                    when(statusCode) {
+                                        "1" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                        }
+
+                                        "2" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                        }
+
+                                        "3" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                        }
+
+                                        "4" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                        }
+
+                                        "5" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                        }
+
+                                        "6" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                        }
+                                    }
+
+                                    // 가격
+                                    price = rootView?.findViewById<View>(R.id.price) as TextView
+                                    price?.text = response.body()?.data?.price
+
+                                    // 주소
+                                    address = rootView?.findViewById<View>(R.id.address) as TextView
+                                    address?.text = response.body()?.data?.address
+
+                                    // 물건 번호
+                                    itemNumber = rootView?.findViewById<View>(R.id.item_number) as TextView
+                                    itemNumber?.text = response.body()?.data?.saleUuid
+
+                                    // 소유주 이름
+                                    owner = rootView?.findViewById<View>(R.id.owner) as TextView
+                                    owner?.text = response.body()?.data?.name
+
+                                    // 노트
+                                    note = rootView?.findViewById<View>(R.id.note_detail) as TextView
+                                    note?.text = response.body()?.data?.comment
+
+                                    // 특징
+                                    specialFeature = rootView?.findViewById<View>(R.id.special_feature) as TextView
+                                    specialFeature?.text = "오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능"
+
+                                    changeActivity(phoneNumber)
+                                }
+                                else -> {
+                                    // 최상단 데이터
+                                    nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
+                                    nameTxt?.text = "최상단 데이터(미정)"
+
+                                    // 핸드폰 번호
+                                    phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
+                                    phoneTxt?.text = phoneNumber
+
+                                    // 유형
+                                    category = rootView?.findViewById<View>(R.id.type) as TextView
+                                    category?.text = codeData.body()?.payType?.get(response.body()?.data?.payType)?.asString
+
+                                    // 소유주(유형 옆)
+                                    rightOwner = rootView?.findViewById<View>(R.id.owner_id) as TextView
+                                    rightOwner?.text = response.body()?.data?.name
+
+                                    // 상태
+                                    statusType = rootView?.findViewById<View>(R.id.status_type) as TextView
+                                    val statusCode : String = response.body()?.data?.status.toString()
+                                    statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
+
+                                    when(statusCode) {
+                                        "1" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                        }
+
+                                        "2" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                        }
+
+                                        "3" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                        }
+
+                                        "4" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                        }
+
+                                        "5" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                        }
+
+                                        "6" -> {
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                        }
+                                    }
+
+                                    // 가격
+                                    price = rootView?.findViewById<View>(R.id.price) as TextView
+                                    price?.text = response.body()?.data?.price
+
+                                    // 주소
+                                    address = rootView?.findViewById<View>(R.id.address) as TextView
+                                    address?.text = response.body()?.data?.address
+
+                                    // 물건 번호
+                                    itemNumber = rootView?.findViewById<View>(R.id.item_number) as TextView
+                                    itemNumber?.text = response.body()?.data?.saleUuid
+
+                                    // 소유주 이름
+                                    owner = rootView?.findViewById<View>(R.id.owner) as TextView
+                                    owner?.text = response.body()?.data?.name
+
+                                    // 노트
+                                    note = rootView?.findViewById<View>(R.id.note_detail) as TextView
+                                    note?.text = response.body()?.data?.comment
+
+                                    // 특징
+                                    specialFeature = rootView?.findViewById<View>(R.id.special_feature) as TextView
+                                    specialFeature?.text = "오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능 오전 중에 통화 불가능"
+
+                                    changeActivity(phoneNumber)
+                                }
+                            }
+
 
                         } else if (response.isSuccessful && response.body()?.code == "NO_DATA" ) {
-                            createView(popupFlag)
-                            Log.d("플래그 값 :", popupFlag.toString())
+                            createView(popupFlag, null)
                             phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
                             itemText = rootView?.findViewById<View>(R.id.itemTxt) as TextView
                             contentTxt = rootView?.findViewById<View>(R.id.contentTxt) as TextView
-
                             phoneTxt?.text = phoneNumber
                             Log.d("상태 코드2", response.code().toString())
                             Log.d("응답", response.errorBody()?.string().toString())
                             registerActivity(phoneNumber)
                         } else {
                             Log.d("3번째", "실패")
-                            Log.d("플래그 값 :", popupFlag.toString())
                             Log.d("데이터", response.body()!!.toString())
                             Log.d("트루", response.isSuccessful.toString())
                         }
@@ -281,7 +476,6 @@ class CallingService : Service() {
         }
 
         startForeground(NOTIFICATION_ID, createNotification(this))
-//        return super.onStartCommand(intent, flags, startId) // START_NOT_STICKY
         return START_STICKY
     }
 
@@ -333,7 +527,7 @@ class CallingService : Service() {
 
 
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun createNotification(context: Context): Notification? {
+    private fun createNotification(context: Context): Notification {
 
         val notifyIntent = Intent(context, MainActivity::class.java)
         var notifyPendingIntent: PendingIntent? = null
