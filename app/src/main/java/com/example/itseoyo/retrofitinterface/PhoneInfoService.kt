@@ -40,13 +40,8 @@ interface PhoneInfoService {
     suspend fun getCustomerInfo(
         @Field("phone") phone: String?,
     ): Response<PhoneInfoDto>
-
     @GET("/api/getToken")
     suspend fun getJwtToken( ): Response<JwtTokenDto>
-
-//    @GET("/api/common/getCode")
-//    suspend fun getCodeData( ): Response<JsonObject>
-
     @GET("/api/common/getCode")
     suspend fun getCodeData( ): Response<CodeDataDto>
 

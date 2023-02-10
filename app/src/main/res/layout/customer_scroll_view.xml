@@ -1,338 +1,347 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="320dp"
-    android:layout_height="234dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:filterTouchesWhenObscured="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
-    <!-- 타이틀바 -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bottom_edge_layout"
-        android:orientation="horizontal"
-        android:weightSum="4">
-
+        android:layout_gravity="center"
+        android:filterTouchesWhenObscured="true"
+        android:orientation="vertical"
+        >
+        <!-- 타이틀바 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:background="@drawable/bottom_edge_layout"
+            android:orientation="horizontal"
+            android:weightSum="4">
 
-            <TextView
-                android:id="@+id/nameTxt"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="left|center"
-                android:paddingLeft="20dp"
-                android:paddingTop="22dp"
-                android:paddingBottom="6dp"
-                android:text="롯데캐슬 101호 집주인(고객)"
-                android:textColor="#4676FE"
-                android:textSize="20dp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/phoneTxt"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/nameTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="22dp"
+                    android:paddingBottom="6dp"
+                    android:text="롯데캐슬 101호 집주인"
+                    android:textColor="#4676FE"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:id="@+id/phoneTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left|center"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="17dp"
+                    android:text="010-1234-5678"
+
+                    android:textColor="#32373F"
+                    android:textSize="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="left|center"
-                android:paddingLeft="20dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="17dp"
-                android:text="010-1234-5678"
+                android:layout_weight="3"
+                android:orientation="vertical">
 
-                android:textColor="#32373F"
-                android:textSize="16dp" />
+                <ImageButton
+                    android:id="@+id/cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:background="@android:color/transparent"
+                    android:paddingTop="18dp"
+                    android:paddingRight="18dp"
+                    android:src="@drawable/icon_close">
+                </ImageButton>
+
+            </LinearLayout>
+
         </LinearLayout>
+        <!-- //end 타이틀바 -->
 
-        <LinearLayout
+        <!-- Notice -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:orientation="vertical">
-
-            <ImageButton
-                android:id="@+id/cancel_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:background="@android:color/transparent"
-                android:paddingTop="18dp"
-                android:paddingRight="18dp"
-                android:src="@drawable/icon_close">
-            </ImageButton>
-
-        </LinearLayout>
-
-    </LinearLayout>
-    <!-- //end 타이틀바 -->
-
-    <!-- Notice -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="#fff"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:background="#fff"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#F5F7FB"
+                android:background="#fff"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="#F5F7FB"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="4dp"
+                        android:background="#F5F7FB"
+                        android:orientation="horizontal"
+                        android:paddingLeft="20dp"
+                        android:paddingTop="15dp"
+                        android:paddingBottom="4dp">
+
+                        <TextView
+                            android:id="@+id/type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="#191B1E"
+                            android:textSize="13dp" />
+
+                        <View
+                            android:id="@+id/pipe_line"
+                            android:layout_width="1dp"
+                            android:layout_height="11dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginRight="5dp"
+                            android:background="#D9DDE4" />
+
+                        <TextView
+                            android:id="@+id/owner_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="#191B1E"
+                            android:textSize="13dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:paddingBottom="5dp">
+
+                        <TextView
+                            android:id="@+id/status_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:background="@drawable/radius"
+                            android:paddingLeft="4dp"
+                            android:paddingTop="3dp"
+                            android:paddingRight="4dp"
+                            android:paddingBottom="3dp"
+                            android:text="보류"
+                            android:textColor="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="매매 18억 3,000"
+                            android:textColor="#191B1E" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp">
+
+                        <TextView
+                            android:id="@+id/address"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="17dp"
+                            android:text="서울특별시 강남구 선릉로 123길 12"
+                            android:textColor="#565E6C" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingLeft="20dp"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="4dp">
+                    android:weightSum="2">
 
-                    <TextView
-                        android:id="@+id/type"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="#191B1E"
-                        android:textSize="13dp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingLeft="16dp"
+                        android:paddingTop="14dp">
 
-                    <View
-                        android:id="@+id/pipe_line"
-                        android:layout_width="1dp"
-                        android:layout_height="11dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:background="#D9DDE4" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="4dp"
+                            android:text="물건번호"
+                            android:textColor="#565E6C"
+                            android:textSize="13dp" />
 
-                    <TextView
-                        android:id="@+id/owner_id"
+                        <EditText
+                            android:id="@+id/item_number"
+                            android:layout_width="140dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/radiusbox"
+                            android:gravity="left|center"
+                            android:paddingLeft="12dp"
+                            android:text="12340"
+                            android:textSize="12dp"
+                            android:textColor="#191B1E" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="#191B1E"
-                        android:textSize="13dp" />
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="14dp"
+                        android:paddingRight="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="4dp"
+                            android:text="이름"
+                            android:textColor="#565E6C"
+                            android:textSize="13dp" />
+
+                        <TextView
+                            android:id="@+id/owner"
+                            android:layout_width="140dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/radiusbox"
+                            android:gravity="left|center"
+                            android:paddingLeft="12dp"
+                            android:text="김희진"
+                            android:textColor="#191B1E" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="20dp"
-                    android:paddingBottom="5dp">
-
-                    <TextView
-                        android:id="@+id/status_type"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
-                        android:background="@drawable/radius"
-                        android:paddingLeft="4dp"
-                        android:paddingTop="3dp"
-                        android:paddingRight="4dp"
-                        android:paddingBottom="3dp"
-                        android:text="보류"
-                        android:textColor="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="매매 18억 3,000"
-                        android:textColor="#191B1E" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="20dp">
-
-                    <TextView
-                        android:id="@+id/address"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="17dp"
-                        android:text="서울특별시 강남구 선릉로 123길 12"
-                        android:textColor="#565E6C" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingLeft="16dp"
-                    android:paddingTop="14dp">
+                    android:paddingTop="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="4dp"
-                        android:text="물건번호"
+                        android:text="노트"
                         android:textColor="#565E6C"
                         android:textSize="13dp" />
 
                     <TextView
-                        android:id="@+id/item_number"
-                        android:layout_width="160dp"
-                        android:layout_height="42dp"
+                        android:id="@+id/note_detail"
+                        android:layout_width="288dp"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/radiusbox"
                         android:gravity="left|center"
-                        android:paddingLeft="12dp"
-                        android:text="12340"
+                        android:padding="12dp"
+                        android:text="세입자 구할 때 되도록 여성 세입자 원함
+                     월세 및 반전세 조절 가능"
                         android:textColor="#191B1E" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="14dp"
-                    android:paddingRight="16dp">
+                    android:paddingLeft="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="4dp"
-                        android:text="이름"
+                        android:text="특징"
                         android:textColor="#565E6C"
                         android:textSize="13dp" />
 
                     <TextView
-                        android:id="@+id/owner"
-                        android:layout_width="160dp"
-                        android:layout_height="42dp"
+                        android:id="@+id/special_feature"
+                        android:layout_width="288dp"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/radiusbox"
                         android:gravity="left|center"
-                        android:paddingLeft="12dp"
-                        android:text="김희진"
+                        android:padding="12dp"
+                        android:text="오전 중에 통화 불가능"
                         android:textColor="#191B1E" />
-
                 </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
+        </ScrollView>
+
+        <!-- Notice -->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#66bdbdbd" />
+
+        <!-- 하단 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/detail_view_button"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="16dp"
-                android:paddingTop="12dp">
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:background="@drawable/bottom_left_radius"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="상세 보기"
+                android:textColor="#ffffff"
+                android:textSize="15dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
-                    android:text="노트"
-                    android:textColor="#565E6C"
-                    android:textSize="13dp" />
-
-                <TextView
-                    android:id="@+id/note_detail"
-                    android:layout_width="328dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/radiusbox"
-                    android:gravity="left|center"
-                    android:padding="12dp"
-                    android:paddingEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:text="세입자 구할 때 되도록 여성 세입자 원함
-                     월세 및 반전세 조절 가능"
-                    android:textColor="#191B1E" />
-
-            </LinearLayout>
-
-            <LinearLayout
+            <Button
+                android:id="@+id/note_register_button"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="16dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
-                    android:text="특징"
-                    android:textColor="#565E6C"
-                    android:textSize="13dp" />
-
-                <TextView
-                    android:id="@+id/special_feature"
-                    android:layout_width="328dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/radiusbox"
-                    android:gravity="left|center"
-                    android:padding="12dp"
-                    android:paddingEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:text="오전 중에 통화 불가능"
-                    android:textColor="#191B1E" />
-            </LinearLayout>
-
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:background="@drawable/bottom_right_radius"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="노트 입력"
+                android:textColor="#ffffff"
+                android:textSize="15dp" />
         </LinearLayout>
+        <!--// 하단 버튼 -->
 
-    </ScrollView>
-
-    <!-- Notice -->
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#66bdbdbd" />
-
-    <!-- 하단 버튼 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <Button
-            android:id="@+id/detail_view_button"
-            android:layout_width="wrap_content"
-            android:layout_height="53dp"
-            android:layout_weight="1"
-            android:background="@drawable/bottom_left_radius"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="상세 보기"
-            android:textColor="#ffffff"
-            android:textSize="15dp" />
-
-        <Button
-            android:id="@+id/note_register_button"
-            android:layout_width="wrap_content"
-            android:layout_height="53dp"
-            android:layout_weight="1"
-            android:background="@drawable/bottom_right_radius"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="노트 입력"
-            android:textColor="#ffffff"
-            android:textSize="15dp" />
     </LinearLayout>
-    <!--// 하단 버튼 -->
+
+
 </LinearLayout>

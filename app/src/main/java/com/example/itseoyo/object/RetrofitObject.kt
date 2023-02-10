@@ -84,10 +84,11 @@ object RetrofitObject {
 
     private fun okHttpClient(interceptor: AppInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
+//            .addInterceptor(HttpLoggingInterceptor().apply {
+//                level = HttpLoggingInterceptor.Level.BODY
+//            })
             .addInterceptor(interceptor)
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }).build()
+            .build()
     }
 
 

@@ -318,7 +318,7 @@
             <Button
                 android:id="@+id/detail_view_button"
                 android:layout_width="wrap_content"
-                android:layout_height="53dp"
+                android:layout_height="58dp"
                 android:layout_weight="1"
                 android:background="@drawable/bottom_left_radius"
                 android:gravity="center"
@@ -330,7 +330,7 @@
             <Button
                 android:id="@+id/note_register_button"
                 android:layout_width="wrap_content"
-                android:layout_height="53dp"
+                android:layout_height="58dp"
                 android:layout_weight="1"
                 android:background="@drawable/bottom_right_radius"
                 android:gravity="center"

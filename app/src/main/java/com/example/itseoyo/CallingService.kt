@@ -218,23 +218,19 @@ class CallingService : Service() {
                             val customerCategory = response.body()?.data?.type
                             createView(true, customerCategory)
                             Log.d("통신", "성공")
-                            Log.d("데이터", response.body()!!.toString())
-                            Log.d("플래그 값 :", popupFlag.toString())
-//                            Log.d("코드 데이터 : ", codeData.body().toString())
-//                            Log.d("type2 : ", codeData.body()?.type1?.getAsJsonObject("01")?.getAsJsonObject("type2")?.get("0101").toString())
 
-                            val typeOne  = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.get("value").toString()
-                            val typeTwo = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.getAsJsonObject("type2")?.get(response.body()?.data?.type2).toString()
-                            val typeThree = codeData.body()?.type3?.get(response.body()?.data?.type3).toString()
-//                            Log.d("치환1", typeOne)
-//                            Log.d("치환2", typeTwo)
-//                            Log.d("치환3", typeThree)
+                            val typeOne  = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.get("value")?.asString
+                            val typeTwo = codeData.body()?.type1?.getAsJsonObject(response.body()?.data?.type1)?.getAsJsonObject("type2")?.get(response.body()?.data?.type2)?.asString
+                            val typeThree = codeData.body()?.type3?.get(response.body()?.data?.type3)?.asString
+                            Log.d("치환1", typeOne.toString())
+                            Log.d("치환2", typeTwo.toString())
+                            Log.d("치환3", typeThree.toString())
 
                             when (customerCategory) {
                                 "SALE" -> {
                                     // 최상단 데이터
                                     nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
-                                    nameTxt?.text = "최상단 데이터(미정) -> SALE(물건)"
+                                    nameTxt?.text = "최상단 데이터(미정) -> $customerCategory(물건)"
 
                                     // 핸드폰 번호
                                     phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
@@ -253,29 +249,29 @@ class CallingService : Service() {
                                     val statusCode : String = response.body()?.data?.status.toString()
                                     statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
 
-                                    when(statusCode) {
+                                    when(statusCode) { // 배경색 변경 코드
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC"))
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE"))
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3"))
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5"))
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786"))
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF"))
                                         }
                                     }
 
@@ -308,7 +304,7 @@ class CallingService : Service() {
                                 "CUSTOMER" -> {
                                     // 최상단 데이터
                                     nameTxt = rootView?.findViewById<View>(R.id.nameTxt) as TextView
-                                    nameTxt?.text = "최상단 데이터(미정) -> CUSTOMER(손님)"
+                                    nameTxt?.text = "최상단 데이터(미정) -> $customerCategory(손님)"
 
                                     // 핸드폰 번호
                                     phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
@@ -327,32 +323,31 @@ class CallingService : Service() {
                                     val statusCode : String = response.body()?.data?.status.toString()
                                     statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
 
-                                    when(statusCode) {
+                                    when(statusCode) { // 배경색 변경 코드
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC"))
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE"))
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3"))
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5"))
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786"))
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF"))
                                         }
                                     }
-
                                     // 가격
                                     price = rootView?.findViewById<View>(R.id.price) as TextView
                                     price?.text = response.body()?.data?.price
@@ -401,32 +396,31 @@ class CallingService : Service() {
                                     val statusCode : String = response.body()?.data?.status.toString()
                                     statusType?.text = codeData.body()?.status?.get(statusCode)?.asString
 
-                                    when(statusCode) {
+                                    when(statusCode) { // 배경색 변경 코드
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC"))
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE"))
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3"))
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5"))
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786"))
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF"))
                                         }
                                     }
-
                                     // 가격
                                     price = rootView?.findViewById<View>(R.id.price) as TextView
                                     price?.text = response.body()?.data?.price
@@ -455,12 +449,9 @@ class CallingService : Service() {
                                 }
                             }
 
-
                         } else if (response.isSuccessful && response.body()?.code == "NO_DATA" ) {
                             createView(popupFlag, null)
                             phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
-                            itemText = rootView?.findViewById<View>(R.id.itemTxt) as TextView
-                            contentTxt = rootView?.findViewById<View>(R.id.contentTxt) as TextView
                             phoneTxt?.text = phoneNumber
                             Log.d("상태 코드2", response.code().toString())
                             Log.d("응답", response.errorBody()?.string().toString())
@@ -474,7 +465,6 @@ class CallingService : Service() {
                 }
             }
         }
-
         startForeground(NOTIFICATION_ID, createNotification(this))
         return START_STICKY
     }
@@ -609,7 +599,6 @@ class CallingService : Service() {
         }
         true
     }
-
     override fun onDestroy() {
         super.onDestroy()
         if (mWindowManager != null) {
@@ -620,7 +609,6 @@ class CallingService : Service() {
             mWindowManager = null;
         }
     }
-
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Not yet implemented")
     }
