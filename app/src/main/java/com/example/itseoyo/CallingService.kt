@@ -255,27 +255,27 @@ class CallingService : Service() {
 
                                     when(statusCode) {
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
                                         }
                                     }
 
@@ -329,27 +329,27 @@ class CallingService : Service() {
 
                                     when(statusCode) {
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
                                         }
                                     }
 
@@ -403,27 +403,27 @@ class CallingService : Service() {
 
                                     when(statusCode) {
                                         "1" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200A")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FFBB86FC")) // 배경색 변경 코드
                                         }
 
                                         "2" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200B")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200EE")) // 배경색 변경 코드
                                         }
 
                                         "3" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200C")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF3700B3")) // 배경색 변경 코드
                                         }
 
                                         "4" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200D")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF03DAC5")) // 배경색 변경 코드
                                         }
 
                                         "5" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200E")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#FF018786")) // 배경색 변경 코드
                                         }
 
                                         "6" -> {
-                                            statusType?.setBackgroundColor(Color.parseColor("#FF6200F")) // 배경색 변경 코드
+                                            statusType?.setBackgroundColor(Color.parseColor("#1133DF")) // 배경색 변경 코드
                                         }
                                     }
 
