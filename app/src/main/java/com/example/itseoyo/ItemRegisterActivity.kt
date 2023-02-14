@@ -84,7 +84,51 @@ class ItemRegisterActivity : AppCompatActivity() {
         webView!!.settings.loadWithOverviewMode = true
         webView!!.settings.useWideViewPort = false
 
+        val phoneNumber = intent.getStringExtra("phoneNumber")
+        Log.d("폰", phoneNumber.toString())
+        webView!!.loadUrl("javascript:getAutomaticPhoneNumber()")
+    }
 
+    // 변수 선언
+    fun WebView.executeScript(
+        variableName: String,
+        constructorName: String,
+        params: List<Any> = emptyList(),
+        onResult: (value: String) -> Unit = {}
+    ) {
+        val sb = StringBuilder()
+
+        sb.append("javascript:")
+            .append("const ")
+            .append(variableName)
+            .append(" = ")
+            .append("new ")
+            .append(constructorName)
+            .append("(")
+            .append(params.joinToString(", "))
+            .append(")")
+
+        evaluateJavascript(sb.toString(), onResult)
+    }
+
+    // 함수 호출
+    fun WebView.executeScript(
+        references: List<String> = emptyList(),
+        functionName: String,
+        params: List<Any> = emptyList(),
+        onResult: (value: String) -> Unit = {}
+    ) {
+        val sb = StringBuilder()
+
+        sb.append("javascript:")
+            .append(references.joinToString("."))
+            .append(".")
+            .append(functionName)
+            .append("(")
+            .append(params.joinToString(", "))
+            .append(")")
+
+        evaluateJavascript(sb.toString(), onResult)
     }
 
     private inner class WebViewClientClass : WebViewClient() {

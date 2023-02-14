@@ -209,8 +209,8 @@ class CallingService : Service() {
                 if(token.isSuccessful) {
 
                     val phone = phoneNumber.replace("-", "")
-//                    val response = service.getCustomerInfo(phone)
-                    val response = service.getCustomerInfo("01062491684")
+                    val response = service.getCustomerInfo(phone)
+//                    val response = service.getCustomerInfo("01062491684")
                     val codeData = service.getCodeData()
 
                     withContext(Dispatchers.Main) {
