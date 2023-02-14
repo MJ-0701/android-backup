@@ -10,14 +10,20 @@ import android.net.Uri
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Message
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class CustomerRegisterActivity : AppCompatActivity() {
@@ -28,6 +34,9 @@ class CustomerRegisterActivity : AppCompatActivity() {
     private var mProgressBar : ProgressBar? = null
     private var mWebViewInterface: WebViewInterFace? = null
     private var filePathCallbackLollipop: ValueCallback<Array<Uri>>? = null
+
+    var cameraPath = ""
+    var mWebViewImageUpload: ValueCallback<Array<Uri>>? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,20 +110,39 @@ class CustomerRegisterActivity : AppCompatActivity() {
                     filePathCallback: ValueCallback<Array<Uri>>?,
                     fileChooserParams: FileChooserParams?
                 ): Boolean {
-                    // Callback 초기화 (중요!)
-                    if (filePathCallbackLollipop != null) {
-                        filePathCallbackLollipop?.onReceiveValue(null)
-                        filePathCallbackLollipop = null
+                    try{
+                        mWebViewImageUpload = filePathCallback!!
+                        var takePictureIntent : Intent?
+                        takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                        if(takePictureIntent.resolveActivity(packageManager) != null){
+                            var photoFile : File?
+
+                            photoFile = createImageFile()
+                            takePictureIntent.putExtra("PhotoPath",cameraPath)
+
+                            if(photoFile != null){
+                                cameraPath = "file:${photoFile.absolutePath}"
+                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(photoFile))
+                            }
+                            else takePictureIntent = null
+                        }
+                        val contentSelectionIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        contentSelectionIntent.type = "image/*"
+
+                        var intentArray: Array<Intent?>
+
+                        if(takePictureIntent != null) intentArray = arrayOf(takePictureIntent)
+                        else intentArray = takePictureIntent?.get(0)!!
+
+                        val chooserIntent = Intent(Intent.ACTION_CHOOSER)
+                        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent)
+                        chooserIntent.putExtra(Intent.EXTRA_TITLE,"사용할 앱을 선택해주세요.")
+                        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray)
+                        launcher.launch(chooserIntent)
                     }
-                    filePathCallbackLollipop = filePathCallback
-                    val isCapture = fileChooserParams?.isCaptureEnabled
-
-//                    if (activity is IImageHandler) {
-//                        activity.takePicture(filePathCallbackLollipop)
-//                    }
-
-
-                    filePathCallbackLollipop = null
+                    catch (e : Exception){
+                        Log.e("파일 업로드 처리 에러", e.toString())
+                    }
                     return true
                 }
             }
@@ -165,8 +193,8 @@ class CustomerRegisterActivity : AppCompatActivity() {
                 webViewURL = bundle.getString("url")
             }
         }
-//        webView!!.loadUrl(webViewURL!!)
-        webView!!.loadUrl("172.30.1.61:8080/index/test")
+        webView!!.loadUrl(webViewURL!!)
+//        webView!!.loadUrl("172.30.1.61:8080/index/test")
 
         val phoneNumber = intent.getStringExtra("phoneNumber")
 
@@ -183,6 +211,35 @@ class CustomerRegisterActivity : AppCompatActivity() {
 
 
     }
+
+    // 이미지 파일 업로드
+    fun createImageFile(): File? {
+        @SuppressLint("SimpleDateFormat")
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "img_" + timeStamp + "_"
+        val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(imageFileName, ".jpg", storageDir)
+    }
+
+    val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val intent = result.data
+
+            if(intent == null){ //바로 사진을 찍어서 올리는 경우
+                val results = arrayOf(Uri.parse(cameraPath))
+                mWebViewImageUpload!!.onReceiveValue(results!!)
+            }
+            else{ //사진 앱을 통해 사진을 가져온 경우
+                val results = intent!!.data!!
+                mWebViewImageUpload!!.onReceiveValue(arrayOf(results!!))
+            }
+        }
+        else{ //취소 한 경우 초기화
+            mWebViewImageUpload!!.onReceiveValue(null)
+            mWebViewImageUpload = null
+        }
+    }
+
     // 변수 선언
     fun WebView.executeScript(
         variableName: String,
@@ -260,15 +317,14 @@ class CustomerRegisterActivity : AppCompatActivity() {
             val phoneNumber = intent.getStringExtra("phoneNumber")!!.replace("-", "")
             Log.d("js 파라미터", phoneNumber)
 
-            webView!!.evaluateJavascript("javascript:getHello('$phoneNumber')") {
-                it -> Log.d("스프링 js", it)
-            }
-
+//            webView!!.evaluateJavascript("javascript:getHello('$phoneNumber')") {
+//                it -> Log.d("스프링 js", it)
+//            }
 //            webView!!.executeScript(functionName = "getHello", params = listOf(phoneNumber))
 
-//            webView!!.evaluateJavascript("javascript:getAutomaticPhoneNumber($phoneNumber)") {
-//                    value -> Log.d("자바스크립트", value)
-//            }
+            webView!!.evaluateJavascript("javascript:getAutomaticPhoneNumber($phoneNumber)") {
+                    value -> Log.d("자바스크립트", value)
+            }
         }
 
         @SuppressLint("WebViewClientOnReceivedSslError")
