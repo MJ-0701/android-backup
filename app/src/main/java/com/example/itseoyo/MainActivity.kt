@@ -12,15 +12,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import com.example.itseoyo.`object`.RetrofitObject
 
 
 class MainActivity : AppCompatActivity() {
@@ -67,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                     resultMsg: Message?
                 ): Boolean {
                     val newWebView = WebView(this@MainActivity).apply {
-                        webViewClient = WebViewClient()
+                        webViewClient = WebViewClientClass()
                         settings.javaScriptEnabled = true
                     }
 
@@ -177,7 +174,7 @@ class MainActivity : AppCompatActivity() {
             val builder : AlertDialog.Builder = android.app.AlertDialog.Builder(this@MainActivity)
             var message = "SSL Certificate error"
             when(error?.primaryError) {
-                SslError.SSL_UNTRUSTED -> message = "인증서를 신뢰할 수 없음"
+                SslError.SSL_UNTRUSTED -> message = "인증서 신뢰할 수 없음"
                 SslError.SSL_EXPIRED -> message = "기간 만료"
                 SslError.SSL_IDMISMATCH -> message = "미스 매치"
                 SslError.SSL_NOTYETVALID -> message = "인증서 아직 허가 안됨"
