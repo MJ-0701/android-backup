@@ -29,6 +29,7 @@ import java.util.*
 class CustomerRegisterActivity : AppCompatActivity() {
 
     private val url = "http://13.209.222.253/guest/write"
+//    private val url = "http://13.209.222.253/room/write"
 
     private var webView: WebView? = null
     private var mProgressBar : ProgressBar? = null
@@ -92,6 +93,7 @@ class CustomerRegisterActivity : AppCompatActivity() {
                     return true
                 }
 
+                // alert 창
                 override fun onJsAlert(
                     view: WebView?,
                     url: String?,
@@ -105,6 +107,8 @@ class CustomerRegisterActivity : AppCompatActivity() {
                     return true
                 }
 
+                // 이미지 파일 업로드 설정
+                @SuppressLint("IntentReset", "QueryPermissionsNeeded")
                 override fun onShowFileChooser(
                     webView: WebView?,
                     filePathCallback: ValueCallback<Array<Uri>>?,
@@ -115,9 +119,8 @@ class CustomerRegisterActivity : AppCompatActivity() {
                         var takePictureIntent : Intent?
                         takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                         if(takePictureIntent.resolveActivity(packageManager) != null){
-                            var photoFile : File?
 
-                            photoFile = createImageFile()
+                            val photoFile : File? = createImageFile()
                             takePictureIntent.putExtra("PhotoPath",cameraPath)
 
                             if(photoFile != null){
@@ -129,16 +132,16 @@ class CustomerRegisterActivity : AppCompatActivity() {
                         val contentSelectionIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                         contentSelectionIntent.type = "image/*"
 
-                        var intentArray: Array<Intent?>
-
-                        if(takePictureIntent != null) intentArray = arrayOf(takePictureIntent)
-                        else intentArray = takePictureIntent?.get(0)!!
+                        val intentArray: Array<Intent?> = if(takePictureIntent != null) arrayOf(takePictureIntent)
+                        else takePictureIntent?.get(0)!!
 
                         val chooserIntent = Intent(Intent.ACTION_CHOOSER)
                         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent)
                         chooserIntent.putExtra(Intent.EXTRA_TITLE,"사용할 앱을 선택해주세요.")
                         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray)
                         launcher.launch(chooserIntent)
+
+
                     }
                     catch (e : Exception){
                         Log.e("파일 업로드 처리 에러", e.toString())
@@ -148,6 +151,7 @@ class CustomerRegisterActivity : AppCompatActivity() {
             }
 
             settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
             settings.setSupportMultipleWindows(true) // 새창띄우기 허용여부
             settings.javaScriptCanOpenWindowsAutomatically = true // 자바스크립트 새창띄우기(멀티뷰) 허용여부
             settings.loadWithOverviewMode = true // 메타태그 허용여부
@@ -184,7 +188,8 @@ class CustomerRegisterActivity : AppCompatActivity() {
 
         val intent = intent
         val bundle = intent.extras
-        var webViewURL: String? = url
+        val phoneNumber = intent.getStringExtra("phoneNumber")
+        var webViewURL: String? = "$url?phone=$phoneNumber"
 
         if (bundle != null) {
             if (bundle.getString("url") != null && !bundle.getString("url")
@@ -194,22 +199,6 @@ class CustomerRegisterActivity : AppCompatActivity() {
             }
         }
         webView!!.loadUrl(webViewURL!!)
-//        webView!!.loadUrl("172.30.1.61:8080/index/test")
-
-        val phoneNumber = intent.getStringExtra("phoneNumber")
-
-//        webView!!.loadUrl("javascript:getAutomaticPhoneNumber($phoneNumber)")
-//        webView!!.evaluateJavascript("javascript:getAutomaticPhoneNumber($phoneNumber)") {
-//            value -> Log.d("자바스크립트", value)
-//        }
-
-
-//        webView!!.executeScript(functionName = "getAutomaticPhoneNumber", params = listOf(phoneNumber)) {value ->
-//            Log.d("자바스크립트 실행 결과", value)
-//        }
-
-
-
     }
 
     // 이미지 파일 업로드
@@ -227,16 +216,82 @@ class CustomerRegisterActivity : AppCompatActivity() {
 
             if(intent == null){ //바로 사진을 찍어서 올리는 경우
                 val results = arrayOf(Uri.parse(cameraPath))
-                mWebViewImageUpload!!.onReceiveValue(results!!)
+                mWebViewImageUpload!!.onReceiveValue(results)
             }
             else{ //사진 앱을 통해 사진을 가져온 경우
-                val results = intent!!.data!!
-                mWebViewImageUpload!!.onReceiveValue(arrayOf(results!!))
+                val results = intent.data!!
+                mWebViewImageUpload!!.onReceiveValue(arrayOf(results))
             }
         }
         else{ //취소 한 경우 초기화
             mWebViewImageUpload!!.onReceiveValue(null)
             mWebViewImageUpload = null
+        }
+    }
+
+    private inner class WebViewClientClass : WebViewClient() {
+        // 페이지 이동
+        @Deprecated("Deprecated in Java")
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+
+            if (Uri.parse(url).host == "13.209.222.253") {
+                // This is my web site, so do not override; let my WebView load the page -> 우리 웹 도메인 일 경우 웹뷰로 호출 -> return false 로 핸드폰 자체 클라이언트로 열지 않는다.
+                return false
+            }
+            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs -> 나머지의 경우 핸드폰 자체 클라이언트로 열람.
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                startActivity(this)
+            }
+            return true
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            mProgressBar?.visibility = ProgressBar.VISIBLE
+            webView?.visibility = View.INVISIBLE
+        }
+
+        override fun onPageCommitVisible(view: WebView?, url: String?) {
+            super.onPageCommitVisible(view, url)
+            mProgressBar?.visibility = ProgressBar.GONE
+            webView?.visibility = View.VISIBLE
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            val phoneNumber = intent.getStringExtra("phoneNumber")!!.replace("-", "")
+            Log.d("js 파라미터", phoneNumber)
+
+            webView!!.evaluateJavascript("window.NativeInterface.getAutomaticPhoneNumber('$phoneNumber')") { it ->
+                Log.d("SPA1 함수", it)
+            }
+
+            webView!!.evaluateJavascript("javascript:getAutomaticPhoneNumber('$phoneNumber')") {it ->
+                Log.d("SPA2 함수", it)
+            }
+        }
+
+        @SuppressLint("WebViewClientOnReceivedSslError")
+        override fun onReceivedSslError(
+            view: WebView?,
+            handler: SslErrorHandler?,
+            error: SslError?
+        ) {
+            val builder : AlertDialog.Builder = android.app.AlertDialog.Builder(this@CustomerRegisterActivity)
+            var message = "SSL Certificate error"
+            when(error?.primaryError) {
+                SslError.SSL_UNTRUSTED -> message = "인증서 신뢰할 수 없음"
+                SslError.SSL_EXPIRED -> message = "기간 만료"
+                SslError.SSL_IDMISMATCH -> message = "미스 매치"
+                SslError.SSL_NOTYETVALID -> message = "인증서 아직 허가 안됨"
+            }
+            message += "계속 하시겠습니까?"
+            builder.setTitle("SSL Certificate Error")
+            builder.setMessage(message)
+            builder.setPositiveButton("continue", DialogInterface.OnClickListener { _, _ -> handler?.proceed() })
+            builder.setNegativeButton("cancel", DialogInterface.OnClickListener { _, _ -> handler?.cancel() })
+            val dialog : android.app.AlertDialog? = builder.create()
+            dialog?.show()
         }
     }
 
@@ -280,74 +335,5 @@ class CustomerRegisterActivity : AppCompatActivity() {
             .append(")")
 
         evaluateJavascript(sb.toString(), onResult)
-    }
-
-
-
-    private inner class WebViewClientClass : WebViewClient() {
-        // 페이지 이동
-        @Deprecated("Deprecated in Java")
-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-
-            if (Uri.parse(url).host == "13.209.222.253") {
-                // This is my web site, so do not override; let my WebView load the page -> 우리 웹 도메인 일 경우 웹뷰로 호출 -> return false 로 핸드폰 자체 클라이언트로 열지 않는다.
-                return false
-            }
-            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs -> 나머지의 경우 핸드폰 자체 클라이언트로 열람.
-            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                startActivity(this)
-            }
-            return true
-        }
-
-        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-            super.onPageStarted(view, url, favicon)
-            mProgressBar?.visibility = ProgressBar.VISIBLE
-            webView?.visibility = View.INVISIBLE
-        }
-
-        override fun onPageCommitVisible(view: WebView?, url: String?) {
-            super.onPageCommitVisible(view, url)
-            mProgressBar?.visibility = ProgressBar.GONE
-            webView?.visibility = View.VISIBLE
-        }
-
-        override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-            val phoneNumber = intent.getStringExtra("phoneNumber")!!.replace("-", "")
-            Log.d("js 파라미터", phoneNumber)
-
-//            webView!!.evaluateJavascript("javascript:getHello('$phoneNumber')") {
-//                it -> Log.d("스프링 js", it)
-//            }
-//            webView!!.executeScript(functionName = "getHello", params = listOf(phoneNumber))
-
-            webView!!.evaluateJavascript("javascript:getAutomaticPhoneNumber($phoneNumber)") {
-                    value -> Log.d("자바스크립트", value)
-            }
-        }
-
-        @SuppressLint("WebViewClientOnReceivedSslError")
-        override fun onReceivedSslError(
-            view: WebView?,
-            handler: SslErrorHandler?,
-            error: SslError?
-        ) {
-            val builder : AlertDialog.Builder = android.app.AlertDialog.Builder(this@CustomerRegisterActivity)
-            var message = "SSL Certificate error"
-            when(error?.primaryError) {
-                SslError.SSL_UNTRUSTED -> message = "인증서를 신뢰할 수 없음"
-                SslError.SSL_EXPIRED -> message = "기간 만료"
-                SslError.SSL_IDMISMATCH -> message = "미스 매치"
-                SslError.SSL_NOTYETVALID -> message = "인증서 아직 허가 안됨"
-            }
-            message += "계속하시겠습니까?"
-            builder.setTitle("SSL Certificate Error")
-            builder.setMessage(message)
-            builder.setPositiveButton("continue", DialogInterface.OnClickListener { _, _ -> handler?.proceed() })
-            builder.setNegativeButton("cancel", DialogInterface.OnClickListener { _, _ -> handler?.cancel() })
-            val dialog : android.app.AlertDialog? = builder.create()
-            dialog?.show()
-        }
     }
 }
