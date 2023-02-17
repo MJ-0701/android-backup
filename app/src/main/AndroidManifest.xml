@@ -21,7 +21,6 @@
     <!--카메라 권한-->
     <uses-permission android:name="android.permission.CAMERA"/>
 
-
     <application
         android:name=".GlobalApplication"
         android:hardwareAccelerated="true"

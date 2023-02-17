@@ -8,10 +8,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
-import android.os.Message
+import android.os.*
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -21,6 +18,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,10 +30,10 @@ class DetailViewActivity : AppCompatActivity() {
     private var webView: WebView? = null
     private var mProgressBar : ProgressBar? = null
     private var mWebViewInterface: WebViewInterFace? = null
-    private var filePathCallbackLollipop: ValueCallback<Array<Uri>>? = null
 
-    var cameraPath = ""
     var mWebViewImageUpload: ValueCallback<Array<Uri>>? = null
+    var filePathCallbackNormal: ValueCallback<Uri>? = null
+    private var cameraImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("상세 보기", "Activity")
@@ -110,38 +108,16 @@ class DetailViewActivity : AppCompatActivity() {
                     filePathCallback: ValueCallback<Array<Uri>>?,
                     fileChooserParams: FileChooserParams?
                 ): Boolean {
-                    try{
-                        mWebViewImageUpload = filePathCallback!!
-                        var takePictureIntent : Intent?
-                        takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                        if(takePictureIntent.resolveActivity(packageManager) != null){
-
-                            val photoFile : File? = createImageFile()
-                            takePictureIntent.putExtra("PhotoPath",cameraPath)
-
-                            if(photoFile != null){
-                                cameraPath = "file:${photoFile.absolutePath}"
-                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(photoFile))
-                            }
-                            else takePictureIntent = null
-                        }
-                        val contentSelectionIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                        contentSelectionIntent.type = "image/*"
-
-                        val intentArray: Array<Intent?> = if(takePictureIntent != null) arrayOf(takePictureIntent)
-                        else takePictureIntent?.get(0)!!
-
-                        val chooserIntent = Intent(Intent.ACTION_CHOOSER)
-                        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent)
-                        chooserIntent.putExtra(Intent.EXTRA_TITLE,"사용할 앱을 선택해주세요.")
-                        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray)
-                        launcher.launch(chooserIntent)
-
-
+                    // Callback 초기화 (중요!)
+                    if (mWebViewImageUpload != null) {
+                        mWebViewImageUpload!!.onReceiveValue(null)
+                        mWebViewImageUpload = null
                     }
-                    catch (e : Exception){
-                        Log.e("파일 업로드 처리 에러", e.toString())
-                    }
+                    mWebViewImageUpload = filePathCallback
+
+                    val isCapture = fileChooserParams!!.isCaptureEnabled
+                    Log.d("선택", isCapture.toString())
+                    runCamera(isCapture)
                     return true
                 }
             }
@@ -198,30 +174,71 @@ class DetailViewActivity : AppCompatActivity() {
     }
 
     // 이미지 파일 업로드
-    fun createImageFile(): File? {
-        @SuppressLint("SimpleDateFormat")
+    @SuppressLint("IntentReset", "SimpleDateFormat")
+    private fun runCamera(isCapture: Boolean) {
+
+        val intentCamera = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val path = filesDir
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val imageFileName = "img_" + timeStamp + "_"
-        val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(imageFileName, ".jpg", storageDir)
+        val file = File(path, "$imageFileName.png")
+
+        // File 객체의 URI 를 얻는다.
+        cameraImageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            val strPa = applicationContext.packageName
+            FileProvider.getUriForFile(this, applicationContext.packageName + ".fileprovider", file)
+        } else {
+            Uri.fromFile(file)
+        }
+        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri)
+        if (isCapture) { // 선택팝업 카메라, 갤러리 둘다 띄우고 싶을 때..
+            val pickIntent = Intent(Intent.ACTION_PICK)
+            pickIntent.type = MediaStore.Images.Media.CONTENT_TYPE
+            pickIntent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val pickTitle = "사진 가져올 방법을 선택하세요."
+            val chooserIntent = Intent.createChooser(pickIntent, pickTitle)
+
+            // 카메라 intent 포함시키기..
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf<Parcelable>(intentCamera))
+//            startActivityForResult(chooserIntent, FILECHOOSER_LOLLIPOP_REQ_CODE)
+            launcher.launch(chooserIntent)
+
+        } else { // 바로 카메라 실행..
+//            startActivityForResult(intentCamera, FILECHOOSER_LOLLIPOP_REQ_CODE)
+            launcher.launch(intentCamera)
+        }
     }
 
-    val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
+    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d("런쳐", result.toString())
+        if (result.resultCode == RESULT_OK) { // 갤러리에서 가져옴
             val intent = result.data
+            Log.d("이미지 데이터", intent.toString())
 
-            if(intent == null){ //바로 사진을 찍어서 올리는 경우
-                val results = arrayOf(Uri.parse(cameraPath))
-                mWebViewImageUpload!!.onReceiveValue(results)
-            }
-            else{ //사진 앱을 통해 사진을 가져온 경우
-                val results = intent.data!!
+            mWebViewImageUpload = if(intent == null){ //바로 사진을 찍어서 올리는 경우
+                Log.d("사진 촬영", "카메라")
+                val results = cameraImageUri!!.apply { Log.d("카메라", this.toString()) }
                 mWebViewImageUpload!!.onReceiveValue(arrayOf(results))
+                null
+            } else{ //사진 앱을 통해 사진을 가져온 경우
+                Log.d("사진 촬영", "갤러리")
+                val results = intent.data!!.apply { Log.d("갤러리 파일", this.toString()) }
+                mWebViewImageUpload!!.onReceiveValue(arrayOf(results))
+                null
             }
-        }
-        else{ //취소 한 경우 초기화
-            mWebViewImageUpload!!.onReceiveValue(null)
-            mWebViewImageUpload = null
+        }else{ //취소 한 경우 초기화
+            Log.d("이미지 데이터", "노 데이터")
+            Log.d("결과 값", result.toString())
+
+            if (mWebViewImageUpload != null) {
+                mWebViewImageUpload!!.onReceiveValue(null)
+                mWebViewImageUpload = null
+            }
+
+            if (filePathCallbackNormal != null) {
+                filePathCallbackNormal!!.onReceiveValue(null)
+                filePathCallbackNormal = null
+            }
         }
     }
 
