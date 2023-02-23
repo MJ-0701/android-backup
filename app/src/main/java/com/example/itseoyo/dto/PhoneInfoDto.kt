@@ -1,7 +1,6 @@
 package com.example.itseoyo.dto
 
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDateTime
 
 data class PhoneInfoDto(
 

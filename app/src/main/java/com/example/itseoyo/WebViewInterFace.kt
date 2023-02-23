@@ -2,7 +2,6 @@ package com.example.itseoyo
 
 import android.app.Activity
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import android.widget.Toast
 
 
