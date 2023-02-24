@@ -1,6 +1,5 @@
 package com.example.itseoyo.`object`
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 

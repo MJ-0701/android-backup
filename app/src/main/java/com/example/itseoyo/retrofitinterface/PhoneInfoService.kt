@@ -3,14 +3,12 @@ package com.example.itseoyo.retrofitinterface
 import com.example.itseoyo.dto.CodeDataDto
 import com.example.itseoyo.dto.JwtTokenDto
 import com.example.itseoyo.dto.PhoneInfoDto
-import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 

@@ -1,14 +1,10 @@
 package com.example.itseoyo.`object`
 
-import android.util.Log
 import com.example.itseoyo.GlobalApplication
-import com.example.itseoyo.NullOnEmptyConverterFactory
-import com.example.itseoyo.retrofitinterface.PhoneInfoService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

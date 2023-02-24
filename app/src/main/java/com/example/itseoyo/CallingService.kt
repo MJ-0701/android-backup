@@ -2,27 +2,25 @@ package com.example.itseoyo
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
-import android.os.Message
+import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.webkit.WebChromeClient
-import android.webkit.WebView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.databinding.DataBindingUtil.setContentView
-import com.example.itseoyo.dto.ErrorResponse
 import com.example.itseoyo.`object`.RetrofitObject
 import com.example.itseoyo.retrofitinterface.PhoneInfoService
 import kotlinx.coroutines.*
-import org.json.JSONObject
 import retrofit2.*
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 
 class CallingService : Service() {
@@ -84,9 +82,39 @@ class CallingService : Service() {
 
     private val service = RetrofitObject.getRetrofitInstance().create(PhoneInfoService::class.java)
 
-    @SuppressLint("InflateParams", "ClickableViewAccessibility")
+    @SuppressLint("PackageManagerGetSignatures")
+    private fun getHashKey() {
+
+        var packageInfo: PackageInfo? = null
+        try {
+            packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        if (packageInfo == null) Log.e("KeyHash", "KeyHash:null")
+        for (signature in packageInfo!!.signatures) {
+            try {
+                val md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                Log.d("KeyHash", android.util.Base64.encodeToString(md.digest(), android.util.Base64.DEFAULT))
+            } catch (e: NoSuchAlgorithmException) {
+                Log.e("KeyHash", "Unable to get MessageDigest. signature=$signature", e)
+            }
+        }
+    }
+
+    @SuppressLint("InflateParams")
     override fun onCreate() {
+        Log.d("서비스", "확인")
+        if(Settings.canDrawOverlays(this)) {
+            Log.d("오버레이 퍼미션", "확인")
+        }else {
+            Log.d("오버레이 퍼미션", "없음")
+        }
+        getHashKey()
+        createNotification()
         super.onCreate()
+
     }
 
     @SuppressLint("InflateParams")
@@ -102,92 +130,65 @@ class CallingService : Service() {
                 rootView = mInflater.inflate(R.layout.customer_scroll_view, null)
             }
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_PHONE,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
-
-                    PixelFormat.TRANSLUCENT
-                )
-
-                params!!.gravity = Gravity.CENTER
-                params!!.x = 0;
-                params!!.y = 100;
-
-                mWindowManager!!.addView(rootView, params)
-                rootView!!.setOnTouchListener(mViewTouchListener)
-                rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
-                    onDestroy()
-                }
-
+            val layoutParam : Int = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
-                params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
-                    PixelFormat.TRANSLUCENT
-                )
-
-                params!!.gravity = Gravity.CENTER
-                mWindowManager!!.addView(rootView, params)
-                rootView!!.setOnTouchListener(mViewTouchListener)
-                rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
-                    Log.d("클릭", "클릭 이벤트")
-                    onDestroy()
-                }
+                WindowManager.LayoutParams.TYPE_PHONE
             }
+
+            params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutParam,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+                PixelFormat.TRANSLUCENT
+            )
+
+            params!!.gravity = Gravity.CENTER
+            params!!.x = 0;
+            params!!.y = 100;
+
+            mWindowManager!!.addView(rootView, params)
+            rootView!!.setOnTouchListener(mViewTouchListener)
+            rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
+                onDestroy()
+            }
+
         }else {
             rootView = mInflater.inflate(R.layout.dialog_custom, null)
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_PHONE,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
 
-                    PixelFormat.TRANSLUCENT
-                )
-
-                params!!.gravity = Gravity.CENTER
-                params!!.x = 0;
-                params!!.y = 100;
-
-                mWindowManager!!.addView(rootView, params)
-                rootView!!.setOnTouchListener(mViewTouchListener)
-                rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
-                    onDestroy()
-                }
-
+            val layoutParam : Int = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
-                params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
-                    PixelFormat.TRANSLUCENT
-                )
+                WindowManager.LayoutParams.TYPE_PHONE
+            }
 
-                params!!.gravity = Gravity.CENTER
-                mWindowManager!!.addView(rootView, params)
-                rootView!!.setOnTouchListener(mViewTouchListener)
-                rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
-                    Log.d("클릭", "클릭 이벤트")
-                    onDestroy()
-                }
+            params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutParam,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+                PixelFormat.TRANSLUCENT
+            )
+
+            params!!.gravity = Gravity.CENTER
+            params!!.x = 0;
+            params!!.y = 100;
+
+            mWindowManager!!.addView(rootView, params)
+            rootView!!.setOnTouchListener(mViewTouchListener)
+            rootView!!.findViewById<View>(R.id.cancel_button).setOnClickListener {
+                onDestroy()
             }
         }
     }
 
-    @SuppressLint("SetTextI18n")
+
+    @SuppressLint("SetTextI18n", "InflateParams")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("MyService", "서비스 동작")
         val phoneNumber = intent?.getStringExtra("phone_number")
@@ -195,6 +196,12 @@ class CallingService : Service() {
         if (intent == null) {
             Log.d("인텐트", "없음")
             return START_STICKY // 서비스가 종료 되었을 때도 다시 자동으로 실행
+        }
+
+        if(!Settings.canDrawOverlays(this)) {
+            Log.d("오버레이 권한", "없음")
+        }else {
+            Log.d("오버레이 권한", "있음")
         }
 
         if (phoneNumber != null) {
@@ -453,8 +460,12 @@ class CallingService : Service() {
                             createView(popupFlag, null)
                             phoneTxt = rootView?.findViewById<View>(R.id.phoneTxt) as TextView
                             phoneTxt?.text = phoneNumber
+
+
                             Log.d("상태 코드2", response.code().toString())
                             Log.d("응답", response.errorBody()?.string().toString())
+
+//                            testActivity(phoneNumber)
                             registerActivity(phoneNumber)
                         } else {
                             Log.d("3번째", "실패")
@@ -465,9 +476,9 @@ class CallingService : Service() {
                 }
             }
         }
-        startForeground(NOTIFICATION_ID, createNotification(this))
         return START_STICKY
     }
+
 
     private fun registerActivity(phoneNumber: String?) {
         val customerRegister: View = rootView!!.findViewById(R.id.customer_register_button)
@@ -516,45 +527,32 @@ class CallingService : Service() {
     }
 
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private fun createNotification(context: Context): Notification {
-
-        val notifyIntent = Intent(context, MainActivity::class.java)
-        var notifyPendingIntent: PendingIntent? = null
-        notifyPendingIntent = if (Build.VERSION.SDK_INT >= 31) {
-            PendingIntent.getActivity(
-                context,
-                0,
-                notifyIntent,
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        } else {
-            PendingIntent.getActivity(
-                context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        }
-
-        val builder = NotificationCompat.Builder(context, "부동산 기억")
-        builder.setWhen(System.currentTimeMillis())
-        builder.setSmallIcon(R.mipmap.ic_launcher)
+    private fun createNotification() {
+        val builder = NotificationCompat.Builder(this, "default")
+        builder.setSmallIcon(R.mipmap.budongsan_memory)
         builder.setContentTitle("부동산 기억")
-        builder.setContentText("표기 내용")
-        builder.setOngoing(true)
-        builder.priority = NotificationCompat.PRIORITY_MIN
-        builder.setCategory(NotificationCompat.CATEGORY_SERVICE)
-        builder.setContentIntent(notifyPendingIntent)
+        builder.setContentText("포그라운드 서비스")
+        builder.color = Color.WHITE
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        builder.setContentIntent(pendingIntent) // 알림 클릭 시 이동
+
+        // 알림 표시
+        val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name: CharSequence = "부동산 기억"
-            val description = "부동산 기억"
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel("부동산 기억", name, importance)
-            channel.description = description
-            val notificationManager = getSystemService(
-                NotificationManager::class.java
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    "default",
+                    "기본 채널",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
             )
-            notificationManager.createNotificationChannel(channel)
         }
-        return builder.build()
+        notificationManager.notify(NOTIFICATION_ID, builder.build()) // id : 정의해야하는 각 알림의 고유한 int값
+        val notification = builder.build()
+        startForeground(NOTIFICATION_ID, notification)
+
     }
 
     @SuppressLint("ClickableViewAccessibility")

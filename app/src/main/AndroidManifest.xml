@@ -3,16 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <!--갤러리 권한-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-    <!--    안드로이드 13버전부터는 해당 권한 사용 안됨-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -21,6 +20,23 @@
     <!--카메라 권한-->
     <uses-permission android:name="android.permission.CAMERA"/>
 
+    <!--전화 권한    -->
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
+
+    <!--알림 권한     -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!--광고 ID targetSdk 33 이상 타겟 시 필요    -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+
+
+
+
+
+
     <application
         android:name=".GlobalApplication"
         android:hardwareAccelerated="true"
@@ -28,12 +44,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/budongsan_memory"
         android:label="@string/app_name"
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Itseoyo"
-        tools:targetApi="31">
+        tools:targetApi="33">
 
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
@@ -47,15 +63,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-<!--        <activity-->
-<!--            android:name=".MainActivity"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+        <!--        <activity-->
+        <!--            android:name=".MainActivity"-->
+        <!--            android:exported="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
 
         <activity
             android:name=".SplashActivity"
@@ -74,11 +90,11 @@
             android:exported="true">
 
 
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.VIEW" />-->
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.VIEW" />-->
 
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--            </intent-filter>-->
+            <!--                <category android:name="android.intent.category.DEFAULT" />-->
+            <!--            </intent-filter>-->
         </activity>
 
         <activity
@@ -101,11 +117,35 @@
             >
         </activity>
 
+        <activity
+            android:name=".TestActivity"
+            >
+        </activity>
+
+        <!--        <service android:name=".TestService"-->
+        <!--            android:permission="android.permission.SYSTEM_ALERT_WINDOW"-->
+
+        <!--            />-->
+
+        <!--        <receiver-->
+        <!--            android:name=".TestReceiver"-->
+        <!--            android:exported="true"-->
+        <!--            android:enabled="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.PHONE_STATE" />-->
+        <!--            </intent-filter>-->
+        <!--        </receiver>-->
+
 
         <service android:name=".CallingService"
-                 android:permission="android.permission.SYSTEM_ALERT_WINDOW"
-
-            />
+            android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
+            android:foregroundServiceType="phoneCall|camera|location|dataSync|connectedDevice"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.telecom.ConnectionService" />
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".IncomingCallBroadCastReceiver"
@@ -115,6 +155,7 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
+
 
     </application>
 

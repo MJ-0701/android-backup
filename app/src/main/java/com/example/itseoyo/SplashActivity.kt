@@ -15,17 +15,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 
+
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
-
-//    val CAMERA = arrayOf(Manifest.permission.CAMERA)
-//    val STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//    val PHONE = arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE)
-//
-//    val CAMERA_CODE = 98
-//    val STORAGE_CODE = 99
-//    val PHONE_CODE = 97
-
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +26,12 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.splashscreen)
     }
 
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @SuppressLint("ObsoleteSdkInt")
-    private fun checkPermission(){
+    private fun checkPermission() {
 
         val permissionsCode = 1
-        val permissions = arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES)
+        val permissions = arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.RECEIVE_BOOT_COMPLETED)
 
         // 사용자가 두번이상 권한을 거부한 경우 앱에서 권한을 재요청할수 없음.
         if (ContextCompat.checkSelfPermission(
@@ -48,31 +39,41 @@ class SplashActivity : AppCompatActivity() {
                 Manifest.permission.READ_CALL_LOG
             ) != PackageManager.PERMISSION_GRANTED
 
-            && ContextCompat.checkSelfPermission(
+            || ContextCompat.checkSelfPermission(
                 this@SplashActivity,
                 Manifest.permission.READ_PHONE_STATE
             ) != PackageManager.PERMISSION_GRANTED
 
-            && ContextCompat.checkSelfPermission(
+            || ContextCompat.checkSelfPermission(
                 this@SplashActivity,
                 Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_DENIED
 
-            && ContextCompat.checkSelfPermission(
+            || ContextCompat.checkSelfPermission(
                 this@SplashActivity,
                 Manifest.permission.READ_MEDIA_IMAGES
+            ) != PackageManager.PERMISSION_GRANTED
+
+            || ContextCompat.checkSelfPermission(
+                this@SplashActivity,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+
+            || ContextCompat.checkSelfPermission(
+                this@SplashActivity,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED
             ) != PackageManager.PERMISSION_GRANTED
 
         ) {
             ActivityCompat.requestPermissions(
                 this@SplashActivity, permissions, permissionsCode
             )
-
         } else {
             nextActivity()
         }
-    }
 
+
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -80,19 +81,13 @@ class SplashActivity : AppCompatActivity() {
         grantResult: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResult)
-        Log.d("진입", "확인")
-
-        permissions.forEach {
-            Log.d("퍼미션 체크", it.toString())
-        }
 
         grantResult.forEach {
             Log.d("권한 값 : ", it.toString())
         }
 
         if (requestCode == 1 && grantResult.isNotEmpty()) {
-
-            if (grantResult[0] == 0 && grantResult[1] == 0 && grantResult[2] == 0) {
+            if (grantResult[0] == 0 && grantResult[1] == 0) {
                 //해당 권한이 승낙된 경우.
                 nextActivity()
             } else {
@@ -105,8 +100,6 @@ class SplashActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-
     }
 
     private fun nextActivity() {
@@ -115,6 +108,6 @@ class SplashActivity : AppCompatActivity() {
             val intent = Intent(baseContext, MainActivity::class.java)
             startActivity(intent)
             finish()
-        }, 500)
+        }, 1000)
     }
 }
