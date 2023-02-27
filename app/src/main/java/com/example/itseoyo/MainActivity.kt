@@ -2,6 +2,7 @@ package com.example.itseoyo
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageInfo
@@ -10,10 +11,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
-import android.os.Build
-import android.os.Bundle
-import android.os.Message
-import android.os.Parcelable
+import android.os.*
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -40,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dialog: OverlayDialog
 
     private val url = "http://13.209.222.253/member/login"
+//    private val url = "http://192.168.172.158:8080/index/test"
 
     private var webView: WebView? = null
     private var mWebViewInterface: WebViewInterFace? = null
@@ -50,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     var mWebViewImageUpload: ValueCallback<Array<Uri>>? = null
     var filePathCallbackNormal: ValueCallback<Uri>? = null
     private var cameraImageUri: Uri? = null
+
+    private val handler = Handler()
 
     @SuppressLint("PackageManagerGetSignatures")
     private fun getHashKey() {
@@ -73,46 +74,25 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkPermission()
         drawActivity()
-//        setContentView(R.layout.test_activity)
-//
-//        val receiver : TestReceiver = TestReceiver()
-//        val filter : IntentFilter = IntentFilter()
-//
-//        filter.addAction(Intent.ACTION_POWER_CONNECTED)
-//        filter.addAction(Intent.ACTION_POWER_DISCONNECTED)
-//
-//        val customerRegister: View = findViewById(R.id.customer_register_button)
-//        val itemRegister: View = findViewById(R.id.item_register_button)
-//
-//        customerRegister.setOnClickListener {
-//            Log.d("클릭", "확인")
-//            val intent = Intent(this, TestReceiver::class.java)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            this.registerReceiver(receiver, filter)
-//            intent.putExtra("test", "확인")
-//            sendBroadcast(intent)
-//        }
-//
-//        itemRegister.setOnClickListener {
-//            Log.d("클릭", "확인")
-//            val intent = Intent(this, TestReceiver::class.java)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            this.registerReceiver(receiver, filter)
-//            intent.putExtra("test", "확인")
-//            sendBroadcast(intent)
-//        }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            keyguardManager.requestDismissKeyguard(this, null)
+        }
     }
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetJavaScriptEnabled")
     private fun drawActivity() {
-//        createNotification()
         setContentView(R.layout.activity_webview)
         webView = findViewById<View>(R.id.webView) as WebView
         mWebViewInterface = WebViewInterFace(this@MainActivity)
@@ -222,6 +202,9 @@ class MainActivity : AppCompatActivity() {
 
         }
         webView!!.loadUrl(url)
+
+
+
     }
 
     @SuppressLint("IntentReset", "SimpleDateFormat")
@@ -302,14 +285,14 @@ class MainActivity : AppCompatActivity() {
         @Deprecated("Deprecated in Java")
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 
-//            if (Uri.parse(url).host == "13.209.222.253") {
-//                // This is my web site, so do not override; let my WebView load the page -> 우리 웹 도메인 일 경우 웹뷰로 호출 -> return false 로 핸드폰 자체 클라이언트로 열지 않는다.
-//                return false
-//            }
-//            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs -> 나머지의 경우 핸드폰 자체 클라이언트로 열람.
-//            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-//                startActivity(this)
-//            }
+            if (Uri.parse(url).host == "13.209.222.253") {
+                // This is my web site, so do not override; let my WebView load the page -> 우리 웹 도메인 일 경우 웹뷰로 호출 -> return false 로 핸드폰 자체 클라이언트로 열지 않는다.
+                return false
+            }
+            // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs -> 나머지의 경우 핸드폰 자체 클라이언트로 열람.
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                startActivity(this)
+            }
             return true
         }
 
@@ -325,28 +308,103 @@ class MainActivity : AppCompatActivity() {
             webView?.visibility = View.VISIBLE
         }
 
-//        @SuppressLint("WebViewClientOnReceivedSslError")
-//        override fun onReceivedSslError(
-//            view: WebView?,
-//            handler: SslErrorHandler?,
-//            error: SslError?
-//        ) {
-//            val builder : AlertDialog.Builder = android.app.AlertDialog.Builder(this@MainActivity)
-//            var message = "SSL Certificate error"
-//            when(error?.primaryError) {
-//                SslError.SSL_UNTRUSTED -> message = "인증서를 신뢰할 수 없음"
-//                SslError.SSL_EXPIRED -> message = "기간 만료"
-//                SslError.SSL_IDMISMATCH -> message = "미스 매치"
-//                SslError.SSL_NOTYETVALID -> message = "인증서 아직 허가 안됨"
+        override fun onLoadResource(view: WebView?, url: String?) {
+            super.onLoadResource(view, url)
+
+//            Log.d("리소스", url.toString())
+
+            if(url.equals("http://13.209.222.253:8000/api/tokenRefresh")) {
+                Log.d("로그인", "확인")
+
+                webView!!.evaluateJavascript("window.NativeInterface.getMemberIdx()") {it ->
+                    Log.d("자바스크립트1", it)
+                    GlobalApplication.prefs.setString("MEMBER_IDX", it)
+
+                    val broadCastIntent = Intent(this@MainActivity, IncomingCallBroadCastReceiver::class.java)
+                    broadCastIntent.putExtra("MEMBER_IDX", it)
+                    sendBroadcast(broadCastIntent)
+                }
+
+//                webView!!.evaluateJavascript("window.dispatchEvent(getMemberIdx)") {it ->
+//                    Log.d("자바스크립트2", it)
+//                }
+//
+//                webView!!.evaluateJavascript("javascript:getMemberIdx()") {it ->
+//                    Log.d("자바스크립트3 : ", it)
+//                }
+            }
+        }
+
+        @SuppressLint("WebViewClientOnReceivedSslError")
+        override fun onReceivedSslError(
+            view: WebView?,
+            handler: SslErrorHandler?,
+            error: SslError?
+        ) {
+            val builder : AlertDialog.Builder = android.app.AlertDialog.Builder(this@MainActivity)
+            var message = "SSL Certificate error"
+            when(error?.primaryError) {
+                SslError.SSL_UNTRUSTED -> message = "인증서를 신뢰할 수 없음"
+                SslError.SSL_EXPIRED -> message = "기간 만료"
+                SslError.SSL_IDMISMATCH -> message = "미스 매치"
+                SslError.SSL_NOTYETVALID -> message = "인증서 아직 허가 안됨"
+            }
+            message += "계속하시겠습니까?"
+            builder.setTitle("SSL Certificate Error")
+            builder.setMessage(message)
+            builder.setPositiveButton("continue", DialogInterface.OnClickListener { _, _ -> handler?.proceed() })
+            builder.setNegativeButton("cancel", DialogInterface.OnClickListener { _, _ -> handler?.cancel() })
+            val dialog : android.app.AlertDialog? = builder.create()
+            dialog?.show()
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+
+//            webView!!.evaluateJavascript("window.NativeInterface.getHello()") {it ->
+//                Log.d("자바스크립트1 : ", it)
 //            }
-//            message += "계속하시겠습니까?"
-//            builder.setTitle("SSL Certificate Error")
-//            builder.setMessage(message)
-//            builder.setPositiveButton("continue", DialogInterface.OnClickListener { _, _ -> handler?.proceed() })
-//            builder.setNegativeButton("cancel", DialogInterface.OnClickListener { _, _ -> handler?.cancel() })
-//            val dialog : android.app.AlertDialog? = builder.create()
-//            dialog?.show()
-//        }
+//
+//            webView!!.evaluateJavascript("window.dispatchEvent(getHello)") {it ->
+//                Log.d("자바스크립트2 : ", it)
+//            }
+//
+//            webView!!.evaluateJavascript("javascript:getHello()") {it ->
+//                Log.d("자바스크립트3 : ", it)
+//            }
+
+            val jwtToken =
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzc0Nzg4NzcsImV4cCI6MTY3NzczODA3N30.NMiKGfhy5xJyUgicuIHFSKsqGQ4jPL0eaD84GUNiMWA"
+            val payload = jwtToken.split(".")[1]
+
+            val decodedBytes: ByteArray = Base64.getDecoder().decode(payload)
+            val decodedString = String(decodedBytes)
+            Log.d("jwt1: ", decodedString)
+
+            val decoder = Base64.getUrlDecoder()
+            Log.d("jwt2: ", String(decoder.decode(payload)))
+
+//            webView!!.evaluateJavascript("window.NativeInterface.getMemberIdx()") {it ->
+//                Log.d("자바스크립트1", it)
+//            }
+//
+//            webView!!.evaluateJavascript("window.dispatchEvent(getMemberIdx)") {it ->
+//                Log.d("자바스크립트1", it)
+//            }
+//
+//            webView!!.evaluateJavascript("javascript:getMemberIdx()") {it ->
+//                Log.d("자바스크립트3 : ", it)
+//            }
+
+        }
+    }
+
+    private fun writeLog(log: String) {
+        handler.post {
+            val logText = null
+            logText?.append(log)
+        }
     }
 
 
@@ -354,9 +412,9 @@ class MainActivity : AppCompatActivity() {
 
         if (!Settings.canDrawOverlays(this)) { // 오버레이 권한 체크
             showOverlayDialog()
-//            startService()
+            startService()
         }else {
-//            startService()
+            startService()
         }
 
 
@@ -375,47 +433,4 @@ class MainActivity : AppCompatActivity() {
         val dialog = OverlayDialog()
         dialog.show(supportFragmentManager, "오버레이 설정")
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotification() {
-        val builder = NotificationCompat.Builder(this, "default")
-        builder.setSmallIcon(R.mipmap.budongsan_memory)
-        builder.setContentTitle("부동산 기억")
-        builder.setContentText("포그라운드 서비스")
-        builder.color = Color.WHITE
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        builder.setContentIntent(pendingIntent) // 알림 클릭 시 이동
-
-        // 알림 표시
-        val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(
-                NotificationChannel(
-                    "default",
-                    "기본 채널",
-                    NotificationManager.IMPORTANCE_DEFAULT
-                )
-            )
-        }
-        val NOTIFICATION_ID = 1234
-        notificationManager.notify(NOTIFICATION_ID, builder.build()) // id : 정의해야하는 각 알림의 고유한 int값
-
-
-        val service = Intent(applicationContext, CallingService::class.java)
-        service.setPackage("package:$packageName")
-        service.action = Settings.ACTION_MANAGE_OVERLAY_PERMISSION
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            this.startForegroundService(service)
-        }else{
-            this.startService(service)
-        }
-
-
-    }
-
-
-
 }

@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName
 
 data class PhoneInfoDto(
 
-    @SerializedName("code")
-    val code : String?,
+   @SerializedName("code")
+   val code : String?,
 
-    @SerializedName("data")
-    val data : UserInfo
+   @SerializedName("data")
+   val data : UserInfo
 )
 
 data class UserInfo(
@@ -54,9 +54,11 @@ data class UserInfo(
    val phone : String?,
 
    @SerializedName("COMMENT")
-   val comment : String?
+   val comment : String?,
+
+   @SerializedName("MEMBER_IDX")
+   val memberIdx : String?
 
 )
-
 
 

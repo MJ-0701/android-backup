@@ -18,9 +18,33 @@ class GlobalApplication : Application() {
         lateinit var prefs: PreferenceUtil
     }
 
+
+    private var PageIndex: String = ""
+    fun getPageIndex(): String? {
+        return PageIndex
+    }
+
+    fun setPageIndex(str: String) {
+        PageIndex = str
+    }
+
+    //private static volatile GlobalApplication instance = null;
+
+    //private static volatile GlobalApplication instance = null;
+
+
     override fun onCreate() {
         super.onCreate()
         prefs = PreferenceUtil(applicationContext)
         obj = this
+    }
+
+    fun getGlobalApplicationContext(): GlobalApplication? {
+        return obj
+    }
+
+
+    fun getCurrentActivity(): Activity? {
+        return currentActivity
     }
 }
